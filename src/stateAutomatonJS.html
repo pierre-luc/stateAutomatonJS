@@ -17,17 +17,53 @@
 	<canvas id="graphic2" width="500" height="300">Votre navigateur ne gère pas les canvas</canvas>
 	<script type="text/javascript" src="js/StateAutomaton.src.js"></script>
 	<script type="text/javascript" src="js/Point.src.js"></script>
+	<script type="text/javascript" src="js/Line.src.js"></script>
+	<script type="text/javascript" src="js/Circle.src.js"></script>
+	<script type="text/javascript" src="js/HeadArrow.src.js"></script>
+	<script type="text/javascript" src="js/Arrow.src.js"></script>
 	<script type="text/javascript">
 		var sa = stateAutomaton;
 		var graphic = document.getElementById('graphic');
 		var graphic2 = document.getElementById('graphic2');
 		var ctx = sa.graphic.getContext( graphic );
 		var A = new sa.graphic.Point( {
-			coord: {x: 100, y: 50},
+			coord: {x: 50, y: 50},
 			name: "A"
 		});
+		var B = new sa.graphic.Point( {
+			coord: {x: 150, y: 170},
+			name: "B"
+		});
 		A.draw();
-		A.draw( sa.graphic.getContext( graphic2, false ) );
+		var line = new sa.graphic.Arrow({
+			start: A,
+			end: B
+		});
+		line.draw();
+		
+
+		var circle = new sa.graphic.Circle({
+			center: A,
+			point: B
+		});
+		circle.draw();
+
+		
+		var intersection = circle.getPoint( Math.PI / 5 );
+		var circle2 = new sa.graphic.Circle({
+			center: intersection,
+			point: A
+		});
+		circle2.draw();				
+		intersection.draw();
+
+		var ctx2 = sa.graphic.getContext( graphic2, false );
+		A.draw( ctx2 );
+		line.draw( ctx2 );
+
+		circle.draw(ctx2);
+		circle2.draw(ctx2);
+		intersection.draw(ctx2);
 
 	</script>
 </body>
