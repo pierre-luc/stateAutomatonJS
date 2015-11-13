@@ -1,7 +1,10 @@
 /**
+ * Classe Point
+ * @author Pierre-Luc BLOT
+ * @created 13/11/15
+ *
  * @requires StateAutomaton.src.js
  */
-
 (function(window) {
     'use strict';
     
