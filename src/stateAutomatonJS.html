@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>StateAutomatonJS</title>
+	<style type="text/css">
+		canvas{
+			border: solid 1px #ddd;		
+		}
+
+	</style>
+</head>
+<body>
+	<h3>Avec anti-aliasing</h3>
+	<canvas id="graphic" width="500" height="300">Votre navigateur ne gère pas les canvas</canvas>
+	<h3>Sans anti-aliasing</h3>
+	<canvas id="graphic2" width="500" height="300">Votre navigateur ne gère pas les canvas</canvas>
+	<script type="text/javascript" src="js/StateAutomaton.src.js"></script>
+	<script type="text/javascript" src="js/Point.src.js"></script>
+	<script type="text/javascript">
+		var sa = stateAutomaton;
+		var graphic = document.getElementById('graphic');
+		var graphic2 = document.getElementById('graphic2');
+		var ctx = sa.graphic.getContext( graphic );
+		var A = new sa.graphic.Point( {
+			coord: {x: 100, y: 50},
+			name: "A"
+		});
+		A.draw();
+		A.draw( sa.graphic.getContext( graphic2, false ) );
+
+	</script>
+</body>
+</html>
