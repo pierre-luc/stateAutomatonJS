@@ -8,7 +8,7 @@
 		graphic: {
 			defaultContext: null,
 			antialiasing: true,
-			
+
 			/**
 			 * Retourne le context2D d'un canvas et permet d'activer l'anti-aliasing.
 			 * @param canvas:Element
@@ -23,8 +23,13 @@
 					antialiasing = true;
 				}
 				var ctx = canvas.getContext( '2d' );
-				if ( this.antialiasing && antialiasing ){
+				if ( !this.antialiasing || !antialiasing ){
 					ctx.translate( 0.5, 0.5 ); // Move the canvas by 0.5px to fix blurring
+					ctx.imageSmoothingEnabled = true;
+					ctx.lineWidth = 0.5;
+				} else {
+					ctx.imageSmoothingEnabled = true;
+					ctx.lineWidth = 1;
 				}
 				if ( this.defaultContext === null ){
 					this.defaultContext = ctx;
