@@ -21,10 +21,10 @@ gulp.task('js-linting-compiling', function(){
     .pipe(concat('StateAutomaton.js')) // concatenate all of the file contents into a file titled 'all.js'
     .pipe(gulp.dest('./dist/js')) // write that file to the dist/js directory
     .pipe(rename('StateAutomaton.min.js')) // now rename the file in memory to 'all.min.js'
-    .pipe(uglify({	// run uglify (for minification) on 'all.min.js'
-    	output: {
-    		comments: /^!|\b(copyright|license)\b|@(preserve|license|cc_on)\b/i
-    	}
+    .pipe(uglify({  // run uglify (for minification) on 'all.min.js'
+        output: {
+            comments: /^!|\b(copyright|license)\b|@(preserve|license|cc_on)\b/i
+        }
     }))
     .pipe(gulp.dest('./dist/js')); // write all.min.js to the dist/js file
 });
@@ -32,7 +32,7 @@ gulp.task('js-linting-compiling', function(){
 // SCSS TASK
 gulp.task( 'css', function() {
   return gulp.src( './src/style/sass/*.scss' )    // Prend en entrée les fichiers *.scss
-    .pipe( sass() )                     		  // Compile les fichiers
+    .pipe( sass() )                               // Compile les fichiers
     .pipe( minifyCss() )                          // Minifie le CSS qui a été généré
     .pipe( gulp.dest( './dist/style/' ) );           // Sauvegarde le tout dans /src/style
 });
@@ -41,9 +41,9 @@ gulp.task( 'css', function() {
 gulp.task( 'js-uglify', function() {
   return gulp.src( './src/js/*.src.js' )    // Prend en entrée les fichiers *.src.js
     .pipe( rename( function( path ){
-      	// Il y a différentes méthodes pour renommer les fichiers
-      	// Voir ici pour plus d'infos : https://www.npmjs.org/package/gulp-rename
-    	path.basename = path.basename.replace( ".src" , ".min" );
+        // Il y a différentes méthodes pour renommer les fichiers
+        // Voir ici pour plus d'infos : https://www.npmjs.org/package/gulp-rename
+        path.basename = path.basename.replace( ".src" , ".min" );
     }))
     .pipe( uglify() )
     .pipe( gulp.dest( './dist/js/' ) );

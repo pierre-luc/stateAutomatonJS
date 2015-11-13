@@ -8,7 +8,7 @@
  * @requires HeadArrow.src.js
  */
 (function(window){
-	'use strict';
+    'use strict';
 
     /**
      * @constructor
@@ -23,8 +23,8 @@
      *  'right' : tête de flèche sur le point d'arrivé
      *  'right' par défaut.
      */
-	var Arrow = function( param ){
-		this.start = param.start;
+    var Arrow = function( param ){
+        this.start = param.start;
         this.end = param.end;
 
         this.line = new stateAutomaton.graphic.Line({
@@ -51,33 +51,33 @@
             width: 7
         });
 
-	};
+    };
 
     /**
      * Retourne le point de départ de la flèche.
      * @return Point
      */
-	Arrow.prototype.getStart = function(){
-		return this.start;
-	};
+    Arrow.prototype.getStart = function(){
+        return this.start;
+    };
 
     /**
      * Retourne le point d'arrivé de la flèche.
      * @return Point
      */
-	Arrow.prototype.getEnd = function(){
-		return this.end;
-	};
+    Arrow.prototype.getEnd = function(){
+        return this.end;
+    };
 
     /**
      * Dessine la flèche dans le context2D.
      * @param context:CanvasRenderingContext2D
      *  Si context n'est pas pas définit, le context par défaut est chargé.
      */
-	Arrow.prototype.draw = function( context ){
-		if ( typeof context === "undefined" ){
-    		context = window.stateAutomaton.graphic.defaultContext;
-    	}
+    Arrow.prototype.draw = function( context ){
+        if ( typeof context === "undefined" ){
+            context = window.stateAutomaton.graphic.defaultContext;
+        }
         this.line.draw( context );
         if ( this.direction == 'right' || this.direction == 'both' ){
             this.endHeadArrow.draw( context );
