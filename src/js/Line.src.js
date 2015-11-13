@@ -61,6 +61,11 @@
     	context.lineTo( this.end.getCoord().x, this.end.getCoord().y );
     	context.stroke();
  	};
+
+ 	/**
+ 	 * Retourne l'angle formé entre le point de départ et le point d'arrivé.
+ 	 * L'angle est exprimé en Radian et est orienté.
+ 	 */
  	Line.prototype.getAngle = function(){
  		return this.angle;
  	};
