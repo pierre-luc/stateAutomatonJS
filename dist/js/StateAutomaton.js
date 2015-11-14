@@ -50,11 +50,82 @@
     }
 })(window);
 /**
+ * Classe Point
+ * @author Pierre-Luc BLOT
+ * @created 13/11/15
+ *
+ * @requires StateAutomaton.src.js
+ */
+(function(window) {
+    'use strict';
+    
+    /**
+     * @constructor
+     * @param param.coord.x
+     * @param param.coord.y
+     * @param param.name;
+     */
+    var Point = function( param ){
+        this.x = param.coord.x;
+        this.y = param.coord.y;
+        this.name = param.name;
+    };
+    /**
+     * Retourne les coordonnées du point.
+     * @return {x, y}
+     */
+    Point.prototype.getCoord = function(){
+        return {
+            x: this.x,
+            y: this.y
+        };
+    };
+    /**
+     * Définit les coordonées du point.
+     * @param coord.x
+     * @param coord.y
+     */
+    Point.prototype.setCoord = function( coord ){
+        this.x = coord.x;
+        this.y = coord.y;
+    };
+    
+    /**
+     * Dessine le point dans le context2D.
+     * @param context:CanvasRenderingContext2D
+     *  Si context n'est pas pas définit, le context par défaut est chargé.
+     */
+    Point.prototype.draw = function( context ){
+        if ( typeof context === "undefined" ){
+            context = window.stateAutomaton.graphic.defaultContext;
+        }
+        context.beginPath();
+        context.moveTo( this.x - 5, this.y );
+        context.lineTo( this.x + 5, this.y );
+        context.moveTo( this.x, this.y - 5 );
+        context.lineTo( this.x, this.y + 5 );
+        context.lineWidth = 1;
+        context.stroke();
+    };
+    /**
+     * Retourne la distance avec le point passé en argument.
+     * @param point
+     */
+    Point.prototype.distance = function( point ){
+        return Math.sqrt( 
+            ( this.x - point.getCoord().x ) * ( this.x - point.getCoord().x ) +
+            ( this.y - point.getCoord().y ) * ( this.y - point.getCoord().y )
+        );
+    };
+    window.stateAutomaton.graphic.Point = Point;
+})(window);
+/**
  * Classe Line
  * @author Pierre-Luc BLOT
  * @created 13/11/15
  *
  * @requires StateAutomaton.src.js
+ * @requires Point.src.js
  */
  (function(window){
     'use strict';
@@ -80,6 +151,15 @@
                 ( this.end.getCoord().x - this.start.getCoord().x )
             );
         }
+
+        this.middle = new stateAutomaton.graphic.Point({
+            coord:{
+                x: ( this.start.getCoord().x + this.end.getCoord().x ) / 2,
+                y: ( this.start.getCoord().y + this.end.getCoord().y ) / 2
+            }
+        });
+
+        this.norm = this.start.distance( this.end );
     };
 
     /**
@@ -121,7 +201,125 @@
         return this.angle;
     };
 
+    
+    Line.prototype.getMiddle = function(){
+        return this.middle;
+    };
+
+    Line.prototype.getNorm = function(){
+        return this.norm;
+    };
+
     window.stateAutomaton.graphic.Line = Line;
+ })(window);
+/**
+ * Classe Arc
+ * @author Pierre-Luc BLOT
+ * @created 13/11/15
+ *
+ * @requires StateAutomaton.src.js
+ * @requires Point.src.js
+ * @requires Line.src.js
+ */
+
+ (function(window){
+    'use strict';
+
+    /**
+     * Construit un Arc en utilisant une courbe de bezier avec deux points de contrôle.
+
+     * @constructor
+     * @param param.start: Point
+     *  Point de départ de l'arc
+     * @param param.end:Point
+     *  Point d'arrive de l'arc
+     * @param param.height:number
+     *  Hauteur de l'arc.
+     */
+    var Arc = function( param ) {
+        this.start = param.start;
+        this.end = param.end;
+        this.height = param.height;
+
+        var baseArc = new stateAutomaton.graphic.Line({
+            start: this.start,
+            end: this.end
+        });
+
+        this.control1 = new stateAutomaton.graphic.Point({
+            coord:{
+                x: this.start.getCoord().x + this.height * Math.cos( baseArc.getAngle() + Math.PI / 2 + Math.PI / 11),
+                y: this.start.getCoord().y + this.height * Math.sin( baseArc.getAngle() + Math.PI / 2 + Math.PI / 11)
+            }
+        });
+
+        this.control2 = new stateAutomaton.graphic.Point({
+            coord:{
+                x: this.end.getCoord().x + this.height * Math.cos( baseArc.getAngle() + Math.PI / 2 - Math.PI / 11),
+                y: this.end.getCoord().y + this.height * Math.sin( baseArc.getAngle() + Math.PI / 2 - Math.PI / 11)
+            }
+        });
+    };
+
+    /**
+     * Retourne la hauteur du point de contrôle.
+     * @return number
+     */
+    Arc.prototype.getHeight = function(){
+        return this.height;
+    };
+
+    /**
+     * Retourne le point de contrôle associé au point de départ.
+     * @return Point
+     */
+    Arc.prototype.getStartControlPoint = function(){
+        return this.control1;
+    };
+
+    /**
+     * Retourne le point de contrôle associé au point d'arrivé.
+     * @return Point
+     */
+    Arc.prototype.getEndControlPoint = function(){
+        return this.control2;
+    };
+
+    /**
+     * Retourne le point de départ de l'arc.
+     * @return Point
+     */
+    Arc.prototype.getStartPoint = function(){
+        return this.start;
+    };
+
+    /**
+     * Retourne le point d'arrivé de l'arc.
+     * @return Point
+     */
+    Arc.prototype.getEndPoint = function(){
+        return this.end;
+    };
+
+    /**
+     * Dessine le cercle dans le contexte2D.
+     * @param context:CanvasRenderingContext2D
+     *  Si context n'est pas pas définit, le context par défaut est chargé.
+     */
+    Arc.prototype.draw = function( context ){
+        if ( typeof context === "undefined" ){
+            context = window.stateAutomaton.graphic.defaultContext;
+        }
+        context.beginPath();        
+        context.moveTo( this.start.getCoord().x, this.start.getCoord().y );
+        context.bezierCurveTo( this.control1.getCoord().x, this.control1.getCoord().y, 
+                               this.control2.getCoord().x, this.control2.getCoord().y,
+                               this.end.getCoord().x, this.end.getCoord().y
+        );
+        context.stroke();
+    };
+
+    window.stateAutomaton.graphic.Arc = Arc;
  })(window);
 /**
  * Classe HeadArrow
@@ -212,6 +410,104 @@
 })(window);
 
 /**
+ * Classe ArcArrow
+ * @author Pierre-Luc BLOT
+ * @created 13/11/15
+ *
+ * @requires StateAutomaton.src.js
+ * @requires HeadArrow.src.js
+ * @requires Line.src.js
+ */
+
+ (function(window){
+    'use strict';
+
+    /**
+     * Construit un ArcArrow en utilisant une courbe de bezier avec deux points de contrôle.
+     
+     * @constructor
+     * @param param.start: Point
+     *  Point de départ de l'arcArrow
+     * @param param.end:Point
+     *  Point d'arrive de l'arcArrow
+     * @param param.height:number
+     *  Hauteur de l'arcArrow.
+     * @param param.direction: string
+     *  'both' : bidirectionnelle
+     *  'left' : tête de flèche sur le point de départ
+     *  'right' : tête de flèche sur le point d'arrivé
+     *  'right' par défaut.
+     */
+    var ArcArrow = function( param ) {
+        this.arc = new stateAutomaton.graphic.Arc( param );
+        
+        var alphaRight = new stateAutomaton.graphic.Line({
+            end: this.arc.getEndControlPoint(),
+            start: this.arc.getEndPoint()
+        }).getAngle();
+
+        this.arrowRight = new stateAutomaton.graphic.HeadArrow({
+            origin: this.arc.getEndPoint(),
+            height: 5,
+            width: 5,
+            angle: alphaRight
+        });
+
+        var alphaLeft = new stateAutomaton.graphic.Line({
+            end: this.arc.getStartControlPoint(),
+            start: this.arc.getStartPoint()
+        }).getAngle();
+
+        this.arrowLeft = new stateAutomaton.graphic.HeadArrow({
+            origin: this.arc.getStartPoint(),
+            height: 5,
+            width: 5,
+            angle: alphaLeft + Math.PI 
+        });
+
+        this.direction = 'right';
+        if ( typeof param.direction == "string" ){
+            this.direction = param.direction;
+        }
+    };
+
+    /**
+     * Retourne la direction des flèches.
+     */
+    ArcArrow.prototype.getDirection = function(){
+        return this.direction;
+    };
+
+    /**
+     * Retourne le point de départ de l'arcArrow.
+     * @return Point
+     */
+    ArcArrow.prototype.getArc = function(){
+        return this.arc;
+    };
+
+    /**
+     * Dessine le cercle dans le contexte2D.
+     * @param context:CanvasRenderingContext2D
+     *  Si context n'est pas pas définit, le context par défaut est chargé.
+     */
+    ArcArrow.prototype.draw = function( context ){
+        if ( typeof context === "undefined" ){
+            context = window.stateAutomaton.graphic.defaultContext;
+        }
+        this.arc.draw( context );
+
+        if ( this.direction == 'left' || this.direction == 'both' ){
+            this.arrowLeft.draw( context );
+        }
+        if ( this.direction == 'right' || this.direction == 'both' ){
+            this.arrowRight.draw( context );
+        }
+    };
+
+    window.stateAutomaton.graphic.ArcArrow = ArcArrow;
+ })(window);
+/**
  * Classe Arrow
  * @author Pierre-Luc BLOT
  * @created 13/11/15
@@ -270,7 +566,7 @@
      * Retourne le point de départ de la flèche.
      * @return Point
      */
-    Arrow.prototype.getStart = function(){
+    Arrow.prototype.getStartPoint = function(){
         return this.start;
     };
 
@@ -278,8 +574,15 @@
      * Retourne le point d'arrivé de la flèche.
      * @return Point
      */
-    Arrow.prototype.getEnd = function(){
+    Arrow.prototype.getEndPoint = function(){
         return this.end;
+    };
+
+    /**
+     * Retourne la direction des flèches.
+     */
+    Arrow.prototype.getDirection = function(){
+        return this.direction;
     };
 
     /**
@@ -302,76 +605,6 @@
     window.stateAutomaton.graphic.Arrow = Arrow;
 })(window);
 
-/**
- * Classe Point
- * @author Pierre-Luc BLOT
- * @created 13/11/15
- *
- * @requires StateAutomaton.src.js
- */
-(function(window) {
-    'use strict';
-    
-    /**
-     * @constructor
-     * @param param.coord.x
-     * @param param.coord.y
-     * @param param.name;
-     */
-    var Point = function( param ){
-        this.x = param.coord.x;
-        this.y = param.coord.y;
-        this.name = param.name;
-    };
-    /**
-     * Retourne les coordonnées du point.
-     * @return {x, y}
-     */
-    Point.prototype.getCoord = function(){
-        return {
-            x: this.x,
-            y: this.y
-        };
-    };
-    /**
-     * Définit les coordonées du point.
-     * @param coord.x
-     * @param coord.y
-     */
-    Point.prototype.setCoord = function( coord ){
-        this.x = coord.x;
-        this.y = coord.y;
-    };
-    
-    /**
-     * Dessine le point dans le context2D.
-     * @param context:CanvasRenderingContext2D
-     *  Si context n'est pas pas définit, le context par défaut est chargé.
-     */
-    Point.prototype.draw = function( context ){
-        if ( typeof context === "undefined" ){
-            context = window.stateAutomaton.graphic.defaultContext;
-        }
-        context.beginPath();
-        context.moveTo( this.x - 5, this.y );
-        context.lineTo( this.x + 5, this.y );
-        context.moveTo( this.x, this.y - 5 );
-        context.lineTo( this.x, this.y + 5 );
-        context.lineWidth = 1;
-        context.stroke();
-    };
-    /**
-     * Retourne la distance avec le point passé en argument.
-     * @param point
-     */
-    Point.prototype.distance = function( point ){
-        return Math.sqrt( 
-            ( this.x - point.getCoord().x ) * ( this.x - point.getCoord().x ) +
-            ( this.y - point.getCoord().y ) * ( this.y - point.getCoord().y )
-        );
-    };
-    window.stateAutomaton.graphic.Point = Point;
-})(window);
 /**
  * Classe Circle
  * @author Pierre-Luc BLOT

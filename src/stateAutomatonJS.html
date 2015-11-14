@@ -12,15 +12,17 @@
 </head>
 <body>
     <h3>Avec anti-aliasing</h3>
-    <canvas id="graphic" width="500" height="300">Votre navigateur ne gère pas les canvas</canvas>
+    <canvas id="graphic" width="500" height="400">Votre navigateur ne gère pas les canvas</canvas>
     <h3>Sans anti-aliasing</h3>
-    <canvas id="graphic2" width="500" height="300">Votre navigateur ne gère pas les canvas</canvas>
+    <canvas id="graphic2" width="500" height="400">Votre navigateur ne gère pas les canvas</canvas>
     <script type="text/javascript" src="js/StateAutomaton.src.js"></script>
     <script type="text/javascript" src="js/Point.src.js"></script>
     <script type="text/javascript" src="js/Line.src.js"></script>
     <script type="text/javascript" src="js/Circle.src.js"></script>
     <script type="text/javascript" src="js/HeadArrow.src.js"></script>
     <script type="text/javascript" src="js/Arrow.src.js"></script>
+    <script type="text/javascript" src="js/Arc.src.js"></script>
+    <script type="text/javascript" src="js/ArcArrow.src.js"></script>
     <script type="text/javascript">
         var sa = stateAutomaton;
         var graphic = document.getElementById('graphic');
@@ -57,6 +59,23 @@
         circle2.draw();             
         intersection.draw();
 
+        
+        var E = new sa.graphic.Point({coord:{
+            x: 230, y: 250
+        }});
+        var F = new sa.graphic.Point({coord:{
+            x: 250, y: 250
+        }});
+
+    
+        var arc = new sa.graphic.ArcArrow({
+            start: E,
+            end: F,
+            height: 50,
+            direction: 'both'
+        });
+        arc.draw();
+
         var ctx2 = sa.graphic.getContext( graphic2, false );
         A.draw( ctx2 );
         line.draw( ctx2 );
@@ -64,6 +83,7 @@
         circle.draw(ctx2);
         circle2.draw(ctx2);
         intersection.draw(ctx2);
+        arc.draw(ctx2);
 
     </script>
 </body>
