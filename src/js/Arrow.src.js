@@ -57,7 +57,7 @@
      * Retourne le point de départ de la flèche.
      * @return Point
      */
-    Arrow.prototype.getStart = function(){
+    Arrow.prototype.getStartPoint = function(){
         return this.start;
     };
 
@@ -65,8 +65,15 @@
      * Retourne le point d'arrivé de la flèche.
      * @return Point
      */
-    Arrow.prototype.getEnd = function(){
+    Arrow.prototype.getEndPoint = function(){
         return this.end;
+    };
+
+    /**
+     * Retourne la direction des flèches.
+     */
+    Arrow.prototype.getDirection = function(){
+        return this.direction;
     };
 
     /**
