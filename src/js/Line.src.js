@@ -4,6 +4,7 @@
  * @created 13/11/15
  *
  * @requires StateAutomaton.src.js
+ * @requires Point.src.js
  */
  (function(window){
     'use strict';
@@ -29,6 +30,15 @@
                 ( this.end.getCoord().x - this.start.getCoord().x )
             );
         }
+
+        this.middle = new stateAutomaton.graphic.Point({
+            coord:{
+                x: ( this.start.getCoord().x + this.end.getCoord().x ) / 2,
+                y: ( this.start.getCoord().y + this.end.getCoord().y ) / 2
+            }
+        });
+
+        this.norm = this.start.distance( this.end );
     };
 
     /**
@@ -68,6 +78,15 @@
      */
     Line.prototype.getAngle = function(){
         return this.angle;
+    };
+
+    
+    Line.prototype.getMiddle = function(){
+        return this.middle;
+    };
+
+    Line.prototype.getNorm = function(){
+        return this.norm;
     };
 
     window.stateAutomaton.graphic.Line = Line;
