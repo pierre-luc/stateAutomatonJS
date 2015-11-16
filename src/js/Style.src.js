@@ -24,6 +24,9 @@
      *  Alignement du texte: left|center|right. Default: left
      * @param param.baseline: string
      *  Baseline: bottom|middle|top. Default: top
+     * @param param.lineStyle: string
+     *  Affichage des tracés en pointillé ou normal. 
+     *  normal|dashed. Default: normal
      */
     var Style = function( param ) {
         if ( typeof param === "undefined" ){
@@ -35,6 +38,7 @@
         this.font = param.font ? param.font : '20px Helvetica';
         this.textAlign = param.textAlign ? param.textAlign : "left";
         this.textBaseline = param.baseline ? param.baseline : "top";
+        this.lineStyle = param.lineStyle ? param.lineStyle : 'normal';
         this.context = {};
         this.paramContext = [ 
             'lineWidth', 'fillStyle', 'strokeStyle', 'textBaseline', 'textAlign', 'font'
@@ -147,11 +151,16 @@
             property = this.paramContext[ i ];
             this.context[ property ] = context[ property ];
         }
+        this.context.lineStyle = context.getLineDash();
+
         // application du style
         for ( i in this.paramContext ){
             property = this.paramContext[ i ];
             context[ property ] = this[ property ];
         }
+        if ( this.lineStyle == 'dashed' ){
+            ctx.setLineDash( [ 5, 15 ] );
+        } 
         
     };
 
@@ -163,6 +172,7 @@
             var property = this.paramContext[ i ];
             context[ property ] = this.context[ property ];
         }
+        context.setLineDash( this.context.lineStyle );
     };
     
     window.stateAutomaton.graphic.Style = Style;
