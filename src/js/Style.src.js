@@ -158,8 +158,16 @@
             property = this.paramContext[ i ];
             context[ property ] = this[ property ];
         }
-        if ( this.lineStyle == 'dashed' ){
-            ctx.setLineDash( [ 5, 15 ] );
+
+        switch( this.lineStyle ){
+            case 'dashed':
+                context.setLineDash( [ 5, 15 ] );
+                break;
+            case 'normal':
+                context.setLineDash( [] );
+                break;
+            default:
+                context.setLineDash( [] );
         } 
         
     };

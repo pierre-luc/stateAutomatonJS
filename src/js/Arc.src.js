@@ -6,6 +6,7 @@
  * @requires StateAutomaton.src.js
  * @requires Point.src.js
  * @requires Line.src.js
+ * @requires Style.src.js
  */
 
  (function(window){
@@ -21,12 +22,14 @@
      *  Point d'arrive de l'arc
      * @param param.height:number
      *  Hauteur de l'arc.
+     * @param param.style: Style
+     *  Style de l'arc.
      */
     var Arc = function( param ) {
         this.start = param.start;
         this.end = param.end;
         this.height = param.height;
-
+        this.style = param.style ? param.style : new stateAutomaton.graphic.Style();
         var baseArc = new stateAutomaton.graphic.Line({
             start: this.start,
             end: this.end
@@ -108,12 +111,14 @@
             context = window.stateAutomaton.graphic.defaultContext;
         }
         context.beginPath();        
+        this.style.apply( context );
         context.moveTo( this.start.getCoord().x, this.start.getCoord().y );
         context.bezierCurveTo( this.control1.getCoord().x, this.control1.getCoord().y, 
                                this.control2.getCoord().x, this.control2.getCoord().y,
                                this.end.getCoord().x, this.end.getCoord().y
         );
         context.stroke();
+        this.style.restore( context );
     };
 
     window.stateAutomaton.graphic.Arc = Arc;

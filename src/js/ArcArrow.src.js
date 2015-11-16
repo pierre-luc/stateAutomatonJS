@@ -6,6 +6,7 @@
  * @requires StateAutomaton.src.js
  * @requires HeadArrow.src.js
  * @requires Line.src.js
+ * @requires Style.src.js
  */
 
  (function(window){
@@ -26,10 +27,13 @@
      *  'left' : tête de flèche sur le point de départ
      *  'right' : tête de flèche sur le point d'arrivé
      *  'right' par défaut.
+     * @param param.style: Style
+     *  Style de l'arc.
      */
     var ArcArrow = function( param ) {
+        this.style = param.style ? param.style : new stateAutomaton.graphic.Style();
+        param.style = this.style;
         this.arc = new stateAutomaton.graphic.Arc( param );
-        
         var bez1 = {
             sx: this.arc.getStartPoint().getCoord().x,
             sy: this.arc.getStartPoint().getCoord().y,
@@ -85,14 +89,16 @@
             origin: this.arc.getEndPoint(),
             height: 5,
             width: 5,
-            angle: computeAngleBezierStartOrEnd(bez1, 'end')
+            angle: computeAngleBezierStartOrEnd(bez1, 'end'),
+            style: this.style
         });
 
         this.arrowLeft = new stateAutomaton.graphic.HeadArrow({
             origin: this.arc.getStartPoint(),
             height: 5,
             width: 5,
-            angle: computeAngleBezierStartOrEnd(bez1, 'start')
+            angle: computeAngleBezierStartOrEnd(bez1, 'start'),
+            style: this.style
         });
 
         this.direction = 'right';

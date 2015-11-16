@@ -95,7 +95,10 @@
                 start: E,
                 end: F,
                 height: 100,
-                direction: 'right'
+                direction: 'both',
+                style: new sa.graphic.Style({
+                    lineStyle: 'dashed'
+                })
             });
             arc.draw();
             var middleControl = arc.getArc().getMiddleControlPoint();
@@ -107,8 +110,6 @@
                 direction: 'both',
                 style: style
             });
-            console.log( arrow2.line.getAngle() < 0 );
-            console.log( arrow2.line.getVector() );
             arrow2.draw();
             ctx.restore();
 

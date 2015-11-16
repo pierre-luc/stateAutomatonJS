@@ -151,6 +151,9 @@
      *  Alignement du texte: left|center|right. Default: left
      * @param param.baseline: string
      *  Baseline: bottom|middle|top. Default: top
+     * @param param.lineStyle: string
+     *  Affichage des tracés en pointillé ou normal. 
+     *  normal|dashed. Default: normal
      */
     var Style = function( param ) {
         if ( typeof param === "undefined" ){
@@ -162,6 +165,7 @@
         this.font = param.font ? param.font : '20px Helvetica';
         this.textAlign = param.textAlign ? param.textAlign : "left";
         this.textBaseline = param.baseline ? param.baseline : "top";
+        this.lineStyle = param.lineStyle ? param.lineStyle : 'normal';
         this.context = {};
         this.paramContext = [ 
             'lineWidth', 'fillStyle', 'strokeStyle', 'textBaseline', 'textAlign', 'font'
@@ -274,11 +278,24 @@
             property = this.paramContext[ i ];
             this.context[ property ] = context[ property ];
         }
+        this.context.lineStyle = context.getLineDash();
+
         // application du style
         for ( i in this.paramContext ){
             property = this.paramContext[ i ];
             context[ property ] = this[ property ];
         }
+
+        switch( this.lineStyle ){
+            case 'dashed':
+                context.setLineDash( [ 5, 15 ] );
+                break;
+            case 'normal':
+                context.setLineDash( [] );
+                break;
+            default:
+                context.setLineDash( [] );
+        } 
         
     };
 
@@ -290,6 +307,7 @@
             var property = this.paramContext[ i ];
             context[ property ] = this.context[ property ];
         }
+        context.setLineDash( this.context.lineStyle );
     };
     
     window.stateAutomaton.graphic.Style = Style;
@@ -400,8 +418,8 @@
         return {
             x: this.end.getCoord().x - this.start.getCoord().x,
             y: this.end.getCoord().y - this.start.getCoord().y
-        }
-    }
+        };
+    };
 
     window.stateAutomaton.graphic.Line = Line;
  })(window);
@@ -413,6 +431,7 @@
  * @requires StateAutomaton.src.js
  * @requires Point.src.js
  * @requires Line.src.js
+ * @requires Style.src.js
  */
 
  (function(window){
@@ -428,12 +447,14 @@
      *  Point d'arrive de l'arc
      * @param param.height:number
      *  Hauteur de l'arc.
+     * @param param.style: Style
+     *  Style de l'arc.
      */
     var Arc = function( param ) {
         this.start = param.start;
         this.end = param.end;
         this.height = param.height;
-
+        this.style = param.style ? param.style : new stateAutomaton.graphic.Style();
         var baseArc = new stateAutomaton.graphic.Line({
             start: this.start,
             end: this.end
@@ -515,12 +536,14 @@
             context = window.stateAutomaton.graphic.defaultContext;
         }
         context.beginPath();        
+        this.style.apply( context );
         context.moveTo( this.start.getCoord().x, this.start.getCoord().y );
         context.bezierCurveTo( this.control1.getCoord().x, this.control1.getCoord().y, 
                                this.control2.getCoord().x, this.control2.getCoord().y,
                                this.end.getCoord().x, this.end.getCoord().y
         );
         context.stroke();
+        this.style.restore( context );
     };
 
     window.stateAutomaton.graphic.Arc = Arc;
@@ -655,6 +678,7 @@
  * @requires StateAutomaton.src.js
  * @requires HeadArrow.src.js
  * @requires Line.src.js
+ * @requires Style.src.js
  */
 
  (function(window){
@@ -675,10 +699,13 @@
      *  'left' : tête de flèche sur le point de départ
      *  'right' : tête de flèche sur le point d'arrivé
      *  'right' par défaut.
+     * @param param.style: Style
+     *  Style de l'arc.
      */
     var ArcArrow = function( param ) {
+        this.style = param.style ? param.style : new stateAutomaton.graphic.Style();
+        param.style = this.style;
         this.arc = new stateAutomaton.graphic.Arc( param );
-        
         var bez1 = {
             sx: this.arc.getStartPoint().getCoord().x,
             sy: this.arc.getStartPoint().getCoord().y,
@@ -734,14 +761,16 @@
             origin: this.arc.getEndPoint(),
             height: 5,
             width: 5,
-            angle: computeAngleBezierStartOrEnd(bez1, 'end')
+            angle: computeAngleBezierStartOrEnd(bez1, 'end'),
+            style: this.style
         });
 
         this.arrowLeft = new stateAutomaton.graphic.HeadArrow({
             origin: this.arc.getStartPoint(),
             height: 5,
             width: 5,
-            angle: computeAngleBezierStartOrEnd(bez1, 'start')
+            angle: computeAngleBezierStartOrEnd(bez1, 'start'),
+            style: this.style
         });
 
         this.direction = 'right';
