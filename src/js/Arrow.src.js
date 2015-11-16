@@ -39,16 +39,16 @@
 
         this.endHeadArrow = new stateAutomaton.graphic.HeadArrow({
             origin: this.start,
-            angle: this.line.getAngle(),
-            height: 7,
-            width: 7
+            angle: this.line.getAngle() + Math.PI,
+            height: 5,
+            width: 5
         });
     
         this.startHeadArrow = new stateAutomaton.graphic.HeadArrow({
             origin: this.end,
-            angle: this.line.getAngle() + Math.PI,
-            height: 7,
-            width: 7
+            angle: this.line.getAngle(),
+            height: 5,
+            width: 5
         });
 
     };

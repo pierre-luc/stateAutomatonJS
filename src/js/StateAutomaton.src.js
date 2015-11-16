@@ -19,6 +19,12 @@
              *  Le premier context2D créé est sauvé en tant que context2D par défaut.
              */
             getContext: function( canvas, antialiasing ){
+                if ( typeof canvas === "undefined" ){
+                    if ( this.defaultContext === null ){
+                        throw "Aucun context n'a été initialisé";
+                    }
+                    return this.defaultContext;
+                }
                 if ( typeof antialiasing === "undefined" ){
                     antialiasing = true;
                 }

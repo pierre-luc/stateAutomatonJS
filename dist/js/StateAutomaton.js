@@ -19,6 +19,12 @@
              *  Le premier context2D créé est sauvé en tant que context2D par défaut.
              */
             getContext: function( canvas, antialiasing ){
+                if ( typeof canvas === "undefined" ){
+                    if ( this.defaultContext === null ){
+                        throw "Aucun context n'a été initialisé";
+                    }
+                    return this.defaultContext;
+                }
                 if ( typeof antialiasing === "undefined" ){
                     antialiasing = true;
                 }
@@ -259,6 +265,13 @@
                 y: this.end.getCoord().y + this.height * Math.sin( baseArc.getAngle() + Math.PI / 2 - Math.PI / 11)
             }
         });
+
+        this.middleControl = new stateAutomaton.graphic.Point({
+            coord: {
+                x: ( this.control1.getCoord().x + this.control2.getCoord().x ) / 2,
+                y: ( this.control1.getCoord().y + this.control2.getCoord().y ) / 2
+            }
+        });
     };
 
     /**
@@ -267,6 +280,10 @@
      */
     Arc.prototype.getHeight = function(){
         return this.height;
+    };
+
+    Arc.prototype.getMiddleControlPoint = function(){
+        return this.middleControl;
     };
 
     /**
@@ -384,14 +401,16 @@
         if ( typeof context === "undefined" ){
             context = window.stateAutomaton.graphic.defaultContext;
         }
-        context.beginPath();
-        var r = Math.sqrt( this.height * this.height / 4 + this.width * this.width );
-        var beta = Math.atan( this.height / ( 2 * this.width ) );
 
         var A = {
             x: this.origin.getCoord().x,
             y: this.origin.getCoord().y
         };
+        /*
+        context.beginPath();
+        var r = Math.sqrt( this.height * this.height / 4 + this.width * this.width );
+        var beta = Math.atan( this.height / ( 2 * this.width ) );
+
         var B = {
             x: this.origin.getCoord().x + r * Math.cos( this.angle - beta),
             y: this.origin.getCoord().y + r * Math.sin( this.angle -beta )
@@ -405,9 +424,28 @@
         context.lineTo( C.x, C.y );
         context.fill();
         context.stroke();
+        /*/
+        var size = context.lineWidth;
+        context.beginPath();
+        context.save();
+        context.translate(A.x, A.y);
+        context.rotate(this.angle);
+
+        
+
+        context.moveTo(-this.width, 0);
+        context.lineTo(-this.width, -this.height);
+        context.lineTo(0, 0);
+        context.lineTo(-this.width, this.height);
+        context.lineTo(-this.width, 0);
+        context.closePath();
+        context.fill();
+        context.restore();
+        //*/
     };
     window.stateAutomaton.graphic.HeadArrow = HeadArrow;
 })(window);
+
 
 /**
  * Classe ArcArrow
@@ -441,28 +479,69 @@
     var ArcArrow = function( param ) {
         this.arc = new stateAutomaton.graphic.Arc( param );
         
-        var alphaRight = new stateAutomaton.graphic.Line({
-            end: this.arc.getEndControlPoint(),
-            start: this.arc.getEndPoint()
-        }).getAngle();
+        var bez1 = {
+            sx: this.arc.getStartPoint().getCoord().x,
+            sy: this.arc.getStartPoint().getCoord().y,
+            cx1: this.arc.getStartControlPoint().getCoord().x,
+            cy1: this.arc.getStartControlPoint().getCoord().y,
+            cx2: this.arc.getEndControlPoint().getCoord().x,
+            cy2: this.arc.getEndControlPoint().getCoord().y,
+            ex: this.arc.getEndPoint().getCoord().x,
+            ey: this.arc.getEndPoint().getCoord().y
+        };
+
+        // cubic helper formula at T distance
+        function cubicN(T, a, b, c, d) {
+            var t2 = T * T;
+            var t3 = t2 * T;
+            return a + (-a * 3 + T * (3 * a - a * T)) * T + (3 * b + T * (-6 * b + b * 3 * T)) * T + (c * 3 - c * 3 * T) * t2 + d * t3;
+        }
+
+        function getCubicBezierXYatT(startPt, controlPt1, controlPt2, endPt, T) {
+            var x = cubicN(T, startPt.x, controlPt1.x, controlPt2.x, endPt.x);
+            var y = cubicN(T, startPt.y, controlPt1.y, controlPt2.y, endPt.y);
+            return ({
+                x: x,
+                y: y
+            });
+        }
+
+
+        function computeAngleBezierStartOrEnd(bez, dir) {
+            var w = 0.1;
+            var pointNearEnd, S, E, D, T;
+            if ( dir == "end" ){
+                S = {x: bez.sx, y: bez.sy};
+                E = {x: bez.ex,y: bez.ey};
+                D = E;
+                T = 0.99 - w;
+            } else {
+                S = {x: bez.sx,y: bez.sy};
+                E = {x: bez.ex,y: bez.ey};
+                D = S;
+                T = 0.01 + w;
+            }            
+            pointNearEnd = getCubicBezierXYatT(
+                S, {x: bez.cx1, y: bez.cy1}, {x: bez.cx2, y: bez.cy2},
+                E, T
+            );
+            var dx = D.x - pointNearEnd.x;
+            var dy = D.y - pointNearEnd.y;
+            return Math.atan2(dy, dx);
+        }
 
         this.arrowRight = new stateAutomaton.graphic.HeadArrow({
             origin: this.arc.getEndPoint(),
             height: 5,
             width: 5,
-            angle: alphaRight
+            angle: computeAngleBezierStartOrEnd(bez1, 'end')
         });
-
-        var alphaLeft = new stateAutomaton.graphic.Line({
-            end: this.arc.getStartControlPoint(),
-            start: this.arc.getStartPoint()
-        }).getAngle();
 
         this.arrowLeft = new stateAutomaton.graphic.HeadArrow({
             origin: this.arc.getStartPoint(),
             height: 5,
             width: 5,
-            angle: alphaLeft + Math.PI 
+            angle: computeAngleBezierStartOrEnd(bez1, 'start')
         });
 
         this.direction = 'right';
@@ -548,16 +627,16 @@
 
         this.endHeadArrow = new stateAutomaton.graphic.HeadArrow({
             origin: this.start,
-            angle: this.line.getAngle(),
-            height: 7,
-            width: 7
+            angle: this.line.getAngle() + Math.PI,
+            height: 5,
+            width: 5
         });
     
         this.startHeadArrow = new stateAutomaton.graphic.HeadArrow({
             origin: this.end,
-            angle: this.line.getAngle() + Math.PI,
-            height: 7,
-            width: 7
+            angle: this.line.getAngle(),
+            height: 5,
+            width: 5
         });
 
     };

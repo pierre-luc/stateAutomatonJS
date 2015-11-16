@@ -37,11 +37,12 @@
             name: "B"
         });
         A.draw();
-        var line = new sa.graphic.Arrow({
+        var arrow = new sa.graphic.Arrow({
             start: A,
-            end: B
+            end: B,
+            direction: 'both'
         });
-        line.draw();
+        arrow.draw();
         
 
         var circle = new sa.graphic.Circle({
@@ -64,25 +65,36 @@
             x: 230, y: 250
         }});
         var F = new sa.graphic.Point({coord:{
-            x: 250, y: 250
+            x: 250, y: 300
         }});
-
     
         var arc = new sa.graphic.ArcArrow({
             start: E,
             end: F,
-            height: 50,
+            height: 150,
             direction: 'both'
         });
+        
         arc.draw();
+        var middleControl = arc.getArc().getMiddleControlPoint();
+        middleControl.draw();
+
+        var arrow2 = new sa.graphic.Arrow({
+            start: arc.getArc().getMiddleControlPoint(),
+            end: intersection,
+            direction: 'both'
+        });
+        arrow2.draw();
 
         var ctx2 = sa.graphic.getContext( graphic2, false );
         A.draw( ctx2 );
-        line.draw( ctx2 );
+        arrow.draw( ctx2 );
 
         circle.draw(ctx2);
         circle2.draw(ctx2);
         intersection.draw(ctx2);
+        middleControl.draw(ctx2);
+        arrow2.draw(ctx2);
         arc.draw(ctx2);
 
     </script>

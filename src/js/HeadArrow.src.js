@@ -61,14 +61,16 @@
         if ( typeof context === "undefined" ){
             context = window.stateAutomaton.graphic.defaultContext;
         }
-        context.beginPath();
-        var r = Math.sqrt( this.height * this.height / 4 + this.width * this.width );
-        var beta = Math.atan( this.height / ( 2 * this.width ) );
 
         var A = {
             x: this.origin.getCoord().x,
             y: this.origin.getCoord().y
         };
+        /*
+        context.beginPath();
+        var r = Math.sqrt( this.height * this.height / 4 + this.width * this.width );
+        var beta = Math.atan( this.height / ( 2 * this.width ) );
+
         var B = {
             x: this.origin.getCoord().x + r * Math.cos( this.angle - beta),
             y: this.origin.getCoord().y + r * Math.sin( this.angle -beta )
@@ -82,6 +84,25 @@
         context.lineTo( C.x, C.y );
         context.fill();
         context.stroke();
+        /*/
+        var size = context.lineWidth;
+        context.beginPath();
+        context.save();
+        context.translate(A.x, A.y);
+        context.rotate(this.angle);
+
+        
+
+        context.moveTo(-this.width, 0);
+        context.lineTo(-this.width, -this.height);
+        context.lineTo(0, 0);
+        context.lineTo(-this.width, this.height);
+        context.lineTo(-this.width, 0);
+        context.closePath();
+        context.fill();
+        context.restore();
+        //*/
     };
     window.stateAutomaton.graphic.HeadArrow = HeadArrow;
 })(window);
+

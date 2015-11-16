@@ -45,6 +45,13 @@
                 y: this.end.getCoord().y + this.height * Math.sin( baseArc.getAngle() + Math.PI / 2 - Math.PI / 11)
             }
         });
+
+        this.middleControl = new stateAutomaton.graphic.Point({
+            coord: {
+                x: ( this.control1.getCoord().x + this.control2.getCoord().x ) / 2,
+                y: ( this.control1.getCoord().y + this.control2.getCoord().y ) / 2
+            }
+        });
     };
 
     /**
@@ -53,6 +60,10 @@
      */
     Arc.prototype.getHeight = function(){
         return this.height;
+    };
+
+    Arc.prototype.getMiddleControlPoint = function(){
+        return this.middleControl;
     };
 
     /**
