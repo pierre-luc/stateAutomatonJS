@@ -13,17 +13,17 @@
      * Construit un Style permettant de modifier le style d'un context.
      * @constructor
      * @param param.lineWidth: number
-     *  Epaisseur du traçage
+     *  Epaisseur du traçage. Default: 1
      * @param param.fillColor: string
-     *  Couleur de remplissage
+     *  Couleur de remplissage. Default: white
      * @param param.color: string
-     *  Couleur de traçage
+     *  Couleur de traçage. Default: black
      * @param param.font: string
-     *  Font utilisée pour le texte
+     *  Font utilisée pour le texte. Default: 20px Helvetica
      * @param param.textAlign: string
-     *  Alignement du texte: left|center|right
+     *  Alignement du texte: left|center|right. Default: left
      * @param param.baseline: string
-     *  Baseline: bottom|middle|top
+     *  Baseline: bottom|middle|top. Default: top
      */
     var Style = function( param ) {
         this.lineWidth = param.lineWidth ? param.lineWidth : 1;
