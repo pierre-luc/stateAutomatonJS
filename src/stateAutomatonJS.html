@@ -45,6 +45,12 @@
         });
         circle.draw();
 
+        var text = new sa.graphic.Text({
+            text: "Salut",
+            point: A,
+            textAlign: 'center' 
+        });
+        text.draw();
         
         var intersection = circle.getPoint( Math.PI / 5 );
         var circle2 = new sa.graphic.Circle({
