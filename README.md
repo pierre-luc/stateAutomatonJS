@@ -19,5 +19,8 @@ update node to the latest version
   sudo n stable
 ```
 ```bash
+  sudo npm install
+```
+```bash
   sudo npm link gulp
 ```
