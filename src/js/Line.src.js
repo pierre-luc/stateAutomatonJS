@@ -39,7 +39,7 @@
         });
 
         this.norm = this.start.distance( this.end );
-        this.style = param.style ? param.style : null;
+        this.style = param.style ? param.style : new stateAutomaton.graphic.Style();
     };
 
     Line.prototype.getStyle = function(){
@@ -75,15 +75,11 @@
             context = window.stateAutomaton.graphic.defaultContext;
         }
         context.beginPath();
-        if ( this.style ){
-            this.style.apply( context );
-        }
+        this.style.apply( context );
         context.moveTo( this.start.getCoord().x, this.start.getCoord().y );
         context.lineTo( this.end.getCoord().x, this.end.getCoord().y );
         context.stroke();
-        if ( this.style ){
-            this.style.restore( context );
-        }
+        this.style.restore( context );
     };
 
     /**
