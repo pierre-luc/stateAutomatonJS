@@ -26,6 +26,9 @@
      *  Baseline: bottom|middle|top. Default: top
      */
     var Style = function( param ) {
+        if ( typeof param === "undefined" ){
+            param = {};
+        }
         this.lineWidth = param.lineWidth ? param.lineWidth : 1;
         this.fillStyle = param.fillColor ? param.fillColor : 'white';
         this.strokeStyle = param.color ? param.color : 'black';
