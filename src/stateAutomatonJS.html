@@ -31,10 +31,15 @@
             name: "B"
         });
         A.draw();
-        var arrow = new sa.graphic.Arrow({
+        var style = new sa.graphic.Style({
+            color: "red",
+            lineWidth: 5
+        });
+        var arrow = new sa.graphic.Line({
             start: A,
             end: B,
-            direction: 'both'
+            direction: 'both',
+            style: style
         });
         arrow.draw();
         
@@ -48,7 +53,13 @@
         var text = new sa.graphic.Text({
             text: "Salut",
             point: A,
-            textAlign: 'center' 
+            textAlign: 'center',
+            style: new sa.graphic.Style({
+                color: 'blue',
+                fillColor: 'green',
+                textAlign: 'center',
+                baseline: 'middle'
+            })
         });
         text.draw();
         
