@@ -5,6 +5,7 @@
  *
  * @requires StateAutomaton.src.js
  * @requires Point.src.js
+ * @requires Style.src.js
  */
  (function(window){
     'use strict';
