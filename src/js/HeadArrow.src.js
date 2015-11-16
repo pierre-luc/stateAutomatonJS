@@ -4,6 +4,7 @@
  * @created 13/11/15
  *
  * @requires StateAutomaton.src.js
+ * @requires Style.src.js
  */
 (function(window){
     'use strict';
@@ -20,12 +21,24 @@
      *  Longueur de la flèche.
      * @param param.angle: number
      *  Angle d'inclinaison exprimé en radians.
+     * @param param.style: Style
+     *  Style du tracé.
      */
     var HeadArrow = function( param ){
         this.origin = param.origin;
-        this.height = param.height;
-        this.width = param.width;
         this.angle = param.angle;
+        this.style = param.style ? param.style : new stateAutomaton.graphic.Style();
+        this.style.setFillColor( this.style.getColor() );
+        this.height = param.height + this.style.getLineWidth(); 
+        this.width = param.width + this.style.getLineWidth();
+    };
+
+    /**
+     * Retourne le style de tracé de la tête de flèche.
+     * @return Style
+     */
+    HeadArrow.prototype.getStyle = function(){
+        return this.style;
     };
 
     /**
@@ -41,7 +54,7 @@
      * @return number
      */
     HeadArrow.prototype.getHeight = function(){
-        return this.height;
+        return this.height - this.style.getLineWidth() + 1;
     };
 
     /**
@@ -49,7 +62,7 @@
      * @return number
      */
     HeadArrow.prototype.getWidth = function(){
-        return this.width;
+        return this.width - this.style.getLineWidth() + 1;
     };
 
     /**
@@ -86,21 +99,22 @@
         context.stroke();
         /*/
         var size = context.lineWidth;
+        this.style.apply( context );
         context.beginPath();
         context.save();
         context.translate(A.x, A.y);
         context.rotate(this.angle);
-
         
-
-        context.moveTo(-this.width, 0);
-        context.lineTo(-this.width, -this.height);
+        context.moveTo(-this.width , 0);
+        context.lineTo(-this.width , -this.height );
         context.lineTo(0, 0);
-        context.lineTo(-this.width, this.height);
-        context.lineTo(-this.width, 0);
+        context.lineTo(-this.width , this.height );
+        context.lineTo(-this.width ,0);
         context.closePath();
         context.fill();
         context.restore();
+        this.style.restore( context );
+        console.log( this.style );
         //*/
     };
     window.stateAutomaton.graphic.HeadArrow = HeadArrow;

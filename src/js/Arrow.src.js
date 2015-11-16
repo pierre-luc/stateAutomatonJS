@@ -6,6 +6,7 @@
  * @requires StateAutomaton.src.js
  * @requires Line.src.js
  * @requires HeadArrow.src.js
+ * @requires Style.src.js
  */
 (function(window){
     'use strict';
@@ -22,14 +23,17 @@
      *  'left' : tête de flèche sur le point de départ
      *  'right' : tête de flèche sur le point d'arrivé
      *  'right' par défaut.
+     * @param param.style: Style
+     *  Style du tracé.
      */
     var Arrow = function( param ){
         this.start = param.start;
         this.end = param.end;
-
+        this.style = param.style ? param.style : new stateAutomaton.graphic.Style();
         this.line = new stateAutomaton.graphic.Line({
             start: this.start,
-            end: this.end
+            end: this.end,
+            style: this.style
         });
 
         this.direction = 'right';
@@ -41,14 +45,16 @@
             origin: this.start,
             angle: this.line.getAngle() + Math.PI,
             height: 5,
-            width: 5
+            width: 5,
+            style: this.style
         });
     
         this.startHeadArrow = new stateAutomaton.graphic.HeadArrow({
             origin: this.end,
             angle: this.line.getAngle(),
             height: 5,
-            width: 5
+            width: 5,
+            style: this.style
         });
 
     };

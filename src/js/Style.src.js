@@ -91,6 +91,54 @@
     };
 
     /**
+     * Définit le type d'alignement du texte.
+     * @param o: string
+     */
+    Style.prototype.setTextAlign = function( s ){
+        this.textAlign = s;
+    };
+
+    /**
+     * Définit le type d'alignement baseline.
+     * @param o: string
+     */
+    Style.prototype.setBaseline = function( o ){
+        this.textBaseline = o;
+    };
+
+    /**
+     * Définit la font utilisée.
+     * @param o: string
+     */
+    Style.prototype.setFont = function( o ){
+        this.font = o;
+    };
+
+    /**
+     * Définit l'épaisseur du traçage.
+     * @param o: number
+     */
+    Style.prototype.setLineWidth = function( o ){
+        this.lineWidth = o;
+    };
+
+    /**
+     * Définit la couleur de remplissage.
+     * @param o: string
+     */
+    Style.prototype.setFillColor = function( o ){
+        this.fillStyle = o;
+    };
+
+    /**
+     *  Définit la couleur de traçage.
+     * @param o: string
+     */
+    Style.prototype.setColor = function( o ){
+        this.strokeStyle = o;
+    };
+
+    /**
      * Applique le style au context et sauve l'état du contexte.
      */
     Style.prototype.apply = function( context ){
