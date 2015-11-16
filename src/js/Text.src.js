@@ -16,21 +16,28 @@
      *  Point de départ du texte
      * @param param.text: string
      *  Texte à afficher
+     * @param param.style: Style
+     *  Style du tracé.
      */
     var Text = function( param ) {
         this.text = param.text;
         this.point = param.point;
-
+        this.style = param.style ? param.style : new stateAutomaton.graphic.Style();
          // todo:  les param non explicit seront implémentés ultérieurement
-        this.font = param.font ? param.font : '20px Helvetica'; // param non explicit
-        this.textAlign = param.textAlign ? param.textAlign : "left"; // param non explicit
-        this.textBaseline = param.baseline ? param.baseline : "top"; // param non explicit
-        var fillColor = 'black'; // param non explicit
-        if ( param.color ){
-            fillColor = o.color.fill ? o.color.fill : fillColor;
-        }
-        this.fillColor = fillColor;
+        this.font = this.style.getFont();
+        this.textAlign = this.style.getTextAlign();
+        this.textBaseline = this.style.getBaseline();
+        this.fillColor = this.style.getFillColor();
     };
+
+    /** 
+     * Retourne le style de la ligne.
+     * @return Style
+     */
+    Text.prototype.getStyle = function(){
+        return this.style;
+    };
+
     /**
      * Retourne le texte à afficher.
      * @return string
@@ -66,12 +73,10 @@
             context = window.stateAutomaton.graphic.defaultContext;
         }
         context.beginPath();        
-        context.font = this.font;
-        context.textAlign = this.textAlign;
-        context.textBaseline = this.textBaseline;
-        context.fillStyle = this.fillColor;
+        this.style.apply( context );
         context.fillText( this.text, this.point.getCoord().x, this.point.getCoord().y );
         context.stroke();
+        this.style.restore( context );
     };
 
     window.stateAutomaton.graphic.Text = Text;
