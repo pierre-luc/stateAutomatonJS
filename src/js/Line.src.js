@@ -100,5 +100,12 @@
         return this.norm;
     };
 
+    Line.prototype.getVector = function(){
+        return {
+            x: this.end.getCoord().x - this.start.getCoord().x,
+            y: this.end.getCoord().y - this.start.getCoord().y
+        }
+    }
+
     window.stateAutomaton.graphic.Line = Line;
  })(window);

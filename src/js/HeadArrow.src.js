@@ -114,7 +114,6 @@
         context.fill();
         context.restore();
         this.style.restore( context );
-        console.log( this.style );
         //*/
     };
     window.stateAutomaton.graphic.HeadArrow = HeadArrow;

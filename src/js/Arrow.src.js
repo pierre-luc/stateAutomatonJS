@@ -30,20 +30,59 @@
         this.start = param.start;
         this.end = param.end;
         this.style = param.style ? param.style : new stateAutomaton.graphic.Style();
-        this.line = new stateAutomaton.graphic.Line({
-            start: this.start,
-            end: this.end,
-            style: this.style
-        });
-
         this.direction = 'right';
         if ( typeof param.direction == "string" ){
             this.direction = param.direction;
         }
 
+        var dxs = 0,
+            dys = 0,
+            dxe = 0,
+            dye = 0,
+            angle = new stateAutomaton.graphic.Line({
+                start: this.start,
+                end: this.end
+            }).getAngle();
+            
+
+
+        var S = new stateAutomaton.graphic.Point({
+            coord:{
+                x: this.start.getCoord().x + dxs,
+                y: this.start.getCoord().y + dys
+            }
+        });
+        var E = new stateAutomaton.graphic.Point({
+            coord:{
+                x: this.end.getCoord().x + dxe,
+                y: this.end.getCoord().y + dye
+            }
+        });
+
+        this.line = new stateAutomaton.graphic.Line({
+            start: S,
+            end: E,
+            style: this.style
+        });
+
+
+        var angleStart = angle;
+        var angleEnd = angle + Math.PI;
+        var v = this.line.getVector();
+
+        if ( v.x > 0 && v.y < 0 ){ // haut droite
+            angleStart = angle + Math.PI;
+            angleEnd = angle;
+        }
+        if ( v.x > 0 && v.y > 0 ){ // haut gauche
+            angleStart = angle + Math.PI;
+            angleEnd = angle;    
+        }
+
+        
         this.endHeadArrow = new stateAutomaton.graphic.HeadArrow({
             origin: this.start,
-            angle: this.line.getAngle() + Math.PI,
+            angle:  angleStart,
             height: 5,
             width: 5,
             style: this.style
@@ -51,11 +90,12 @@
     
         this.startHeadArrow = new stateAutomaton.graphic.HeadArrow({
             origin: this.end,
-            angle: this.line.getAngle(),
+            angle: angleEnd,
             height: 5,
             width: 5,
             style: this.style
-        });
+        });            
+    
 
     };
 

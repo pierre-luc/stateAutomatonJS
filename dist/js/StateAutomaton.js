@@ -126,12 +126,182 @@
     window.stateAutomaton.graphic.Point = Point;
 })(window);
 /**
+ * Classe Style
+ * @author Pierre-Luc BLOT
+ * @created 16/11/15
+ *
+ * @requires StateAutomaton.src.js
+ */
+
+ (function(window){
+    'use strict';
+
+    /**
+     * Construit un Style permettant de modifier le style d'un context.
+     * @constructor
+     * @param param.lineWidth: number
+     *  Epaisseur du traçage. Default: 1
+     * @param param.fillColor: string
+     *  Couleur de remplissage. Default: white
+     * @param param.color: string
+     *  Couleur de traçage. Default: black
+     * @param param.font: string
+     *  Font utilisée pour le texte. Default: 20px Helvetica
+     * @param param.textAlign: string
+     *  Alignement du texte: left|center|right. Default: left
+     * @param param.baseline: string
+     *  Baseline: bottom|middle|top. Default: top
+     */
+    var Style = function( param ) {
+        if ( typeof param === "undefined" ){
+            param = {};
+        }
+        this.lineWidth = param.lineWidth ? param.lineWidth : 1;
+        this.fillStyle = param.fillColor ? param.fillColor : 'white';
+        this.strokeStyle = param.color ? param.color : 'black';
+        this.font = param.font ? param.font : '20px Helvetica';
+        this.textAlign = param.textAlign ? param.textAlign : "left";
+        this.textBaseline = param.baseline ? param.baseline : "top";
+        this.context = {};
+        this.paramContext = [ 
+            'lineWidth', 'fillStyle', 'strokeStyle', 'textBaseline', 'textAlign', 'font'
+        ];
+    };
+
+    /**
+     * Retourne le type d'alignement du texte.
+     * @return string
+     */
+    Style.prototype.getTextAlign = function(){
+        return this.textAlign;
+    };
+
+    /**
+     * Retourne le type d'alignement baseline.
+     * @return string
+     */
+    Style.prototype.getBaseline = function(){
+        return this.textBaseline;
+    };
+
+    /**
+     * Retourne la font utilisée.
+     * @return string
+     */
+    Style.prototype.getFont = function(){
+        return this.font;
+    };
+
+    /**
+     * Retourne l'épaisseur du traçage.
+     * @return number
+     */
+    Style.prototype.getLineWidth = function(){
+        return this.lineWidth;
+    };
+
+    /**
+     * Retourne la couleur de remplissage.
+     * @return string
+     */
+    Style.prototype.getFillColor = function(){
+        return this.fillStyle;
+    };
+
+    /**
+     *  Retourne la couleur de traçage.
+     * @return string
+     */
+    Style.prototype.getColor = function(){
+        return this.strokeStyle;
+    };
+
+    /**
+     * Définit le type d'alignement du texte.
+     * @param o: string
+     */
+    Style.prototype.setTextAlign = function( s ){
+        this.textAlign = s;
+    };
+
+    /**
+     * Définit le type d'alignement baseline.
+     * @param o: string
+     */
+    Style.prototype.setBaseline = function( o ){
+        this.textBaseline = o;
+    };
+
+    /**
+     * Définit la font utilisée.
+     * @param o: string
+     */
+    Style.prototype.setFont = function( o ){
+        this.font = o;
+    };
+
+    /**
+     * Définit l'épaisseur du traçage.
+     * @param o: number
+     */
+    Style.prototype.setLineWidth = function( o ){
+        this.lineWidth = o;
+    };
+
+    /**
+     * Définit la couleur de remplissage.
+     * @param o: string
+     */
+    Style.prototype.setFillColor = function( o ){
+        this.fillStyle = o;
+    };
+
+    /**
+     *  Définit la couleur de traçage.
+     * @param o: string
+     */
+    Style.prototype.setColor = function( o ){
+        this.strokeStyle = o;
+    };
+
+    /**
+     * Applique le style au context et sauve l'état du contexte.
+     */
+    Style.prototype.apply = function( context ){
+        var i, property;
+        // sauvegarde du style du context
+        for ( i in this.paramContext ){
+            property = this.paramContext[ i ];
+            this.context[ property ] = context[ property ];
+        }
+        // application du style
+        for ( i in this.paramContext ){
+            property = this.paramContext[ i ];
+            context[ property ] = this[ property ];
+        }
+        
+    };
+
+    /**
+     * Permet de rétablir l'état du context sauvé.
+     */
+    Style.prototype.restore = function( context ){
+        for ( var i in this.paramContext ){
+            var property = this.paramContext[ i ];
+            context[ property ] = this.context[ property ];
+        }
+    };
+    
+    window.stateAutomaton.graphic.Style = Style;
+ })(window);
+/**
  * Classe Line
  * @author Pierre-Luc BLOT
  * @created 13/11/15
  *
  * @requires StateAutomaton.src.js
  * @requires Point.src.js
+ * @requires Style.src.js
  */
  (function(window){
     'use strict';
@@ -166,7 +336,7 @@
         });
 
         this.norm = this.start.distance( this.end );
-        this.style = param.style ? param.style : null;
+        this.style = param.style ? param.style : new stateAutomaton.graphic.Style();
     };
 
     Line.prototype.getStyle = function(){
@@ -202,15 +372,11 @@
             context = window.stateAutomaton.graphic.defaultContext;
         }
         context.beginPath();
-        if ( this.style ){
-            this.style.apply( context );
-        }
+        this.style.apply( context );
         context.moveTo( this.start.getCoord().x, this.start.getCoord().y );
         context.lineTo( this.end.getCoord().x, this.end.getCoord().y );
         context.stroke();
-        if ( this.style ){
-            this.style.restore( context );
-        }
+        this.style.restore( context );
     };
 
     /**
@@ -229,6 +395,13 @@
     Line.prototype.getNorm = function(){
         return this.norm;
     };
+
+    Line.prototype.getVector = function(){
+        return {
+            x: this.end.getCoord().x - this.start.getCoord().x,
+            y: this.end.getCoord().y - this.start.getCoord().y
+        }
+    }
 
     window.stateAutomaton.graphic.Line = Line;
  })(window);
@@ -358,6 +531,7 @@
  * @created 13/11/15
  *
  * @requires StateAutomaton.src.js
+ * @requires Style.src.js
  */
 (function(window){
     'use strict';
@@ -374,12 +548,24 @@
      *  Longueur de la flèche.
      * @param param.angle: number
      *  Angle d'inclinaison exprimé en radians.
+     * @param param.style: Style
+     *  Style du tracé.
      */
     var HeadArrow = function( param ){
         this.origin = param.origin;
-        this.height = param.height;
-        this.width = param.width;
         this.angle = param.angle;
+        this.style = param.style ? param.style : new stateAutomaton.graphic.Style();
+        this.style.setFillColor( this.style.getColor() );
+        this.height = param.height + this.style.getLineWidth(); 
+        this.width = param.width + this.style.getLineWidth();
+    };
+
+    /**
+     * Retourne le style de tracé de la tête de flèche.
+     * @return Style
+     */
+    HeadArrow.prototype.getStyle = function(){
+        return this.style;
     };
 
     /**
@@ -395,7 +581,7 @@
      * @return number
      */
     HeadArrow.prototype.getHeight = function(){
-        return this.height;
+        return this.height - this.style.getLineWidth() + 1;
     };
 
     /**
@@ -403,7 +589,7 @@
      * @return number
      */
     HeadArrow.prototype.getWidth = function(){
-        return this.width;
+        return this.width - this.style.getLineWidth() + 1;
     };
 
     /**
@@ -440,21 +626,21 @@
         context.stroke();
         /*/
         var size = context.lineWidth;
+        this.style.apply( context );
         context.beginPath();
         context.save();
         context.translate(A.x, A.y);
         context.rotate(this.angle);
-
         
-
-        context.moveTo(-this.width, 0);
-        context.lineTo(-this.width, -this.height);
+        context.moveTo(-this.width , 0);
+        context.lineTo(-this.width , -this.height );
         context.lineTo(0, 0);
-        context.lineTo(-this.width, this.height);
-        context.lineTo(-this.width, 0);
+        context.lineTo(-this.width , this.height );
+        context.lineTo(-this.width ,0);
         context.closePath();
         context.fill();
         context.restore();
+        this.style.restore( context );
         //*/
     };
     window.stateAutomaton.graphic.HeadArrow = HeadArrow;
@@ -608,6 +794,7 @@
  * @requires StateAutomaton.src.js
  * @requires Line.src.js
  * @requires HeadArrow.src.js
+ * @requires Style.src.js
  */
 (function(window){
     'use strict';
@@ -624,34 +811,79 @@
      *  'left' : tête de flèche sur le point de départ
      *  'right' : tête de flèche sur le point d'arrivé
      *  'right' par défaut.
+     * @param param.style: Style
+     *  Style du tracé.
      */
     var Arrow = function( param ){
         this.start = param.start;
         this.end = param.end;
-
-        this.line = new stateAutomaton.graphic.Line({
-            start: this.start,
-            end: this.end
-        });
-
+        this.style = param.style ? param.style : new stateAutomaton.graphic.Style();
         this.direction = 'right';
         if ( typeof param.direction == "string" ){
             this.direction = param.direction;
         }
 
+        var dxs = 0,
+            dys = 0,
+            dxe = 0,
+            dye = 0,
+            angle = new stateAutomaton.graphic.Line({
+                start: this.start,
+                end: this.end
+            }).getAngle();
+            
+
+
+        var S = new stateAutomaton.graphic.Point({
+            coord:{
+                x: this.start.getCoord().x + dxs,
+                y: this.start.getCoord().y + dys
+            }
+        });
+        var E = new stateAutomaton.graphic.Point({
+            coord:{
+                x: this.end.getCoord().x + dxe,
+                y: this.end.getCoord().y + dye
+            }
+        });
+
+        this.line = new stateAutomaton.graphic.Line({
+            start: S,
+            end: E,
+            style: this.style
+        });
+
+
+        var angleStart = angle;
+        var angleEnd = angle + Math.PI;
+        var v = this.line.getVector();
+
+        if ( v.x > 0 && v.y < 0 ){ // haut droite
+            angleStart = angle + Math.PI;
+            angleEnd = angle;
+        }
+        if ( v.x > 0 && v.y > 0 ){ // haut gauche
+            angleStart = angle + Math.PI;
+            angleEnd = angle;    
+        }
+
+        
         this.endHeadArrow = new stateAutomaton.graphic.HeadArrow({
             origin: this.start,
-            angle: this.line.getAngle() + Math.PI,
+            angle:  angleStart,
             height: 5,
-            width: 5
+            width: 5,
+            style: this.style
         });
     
         this.startHeadArrow = new stateAutomaton.graphic.HeadArrow({
             origin: this.end,
-            angle: this.line.getAngle(),
+            angle: angleEnd,
             height: 5,
-            width: 5
-        });
+            width: 5,
+            style: this.style
+        });            
+    
 
     };
 
@@ -771,130 +1003,12 @@
 	window.stateAutomaton.graphic.Circle = Circle;
  })(window);
 /**
- * Classe Style
- * @author Pierre-Luc BLOT
- * @created 16/11/15
- *
- * @requires StateAutomaton.src.js
- */
-
- (function(window){
-    'use strict';
-
-    /**
-     * Construit un Style permettant de modifier le style d'un context.
-     * @constructor
-     * @param param.lineWidth: number
-     *  Epaisseur du traçage
-     * @param param.fillColor: string
-     *  Couleur de remplissage
-     * @param param.color: string
-     *  Couleur de traçage
-     * @param param.font: string
-     *  Font utilisée pour le texte
-     * @param param.textAlign: string
-     *  Alignement du texte: left|center|right
-     * @param param.baseline: string
-     *  Baseline: bottom|middle|top
-     */
-    var Style = function( param ) {
-        this.lineWidth = param.lineWidth ? param.lineWidth : 1;
-        this.fillStyle = param.fillColor ? param.fillColor : 'white';
-        this.strokeStyle = param.color ? param.color : 'black';
-        this.font = param.font ? param.font : '20px Helvetica';
-        this.textAlign = param.textAlign ? param.textAlign : "left";
-        this.textBaseline = param.baseline ? param.baseline : "top";
-
-        this.context = {};
-        this.paramContext = [ 
-            'lineWidth', 'fillStyle', 'strokeStyle', 'textBaseline', 'textAlign', 'font'
-        ];
-    };
-
-    /**
-     * Retourne le type d'alignement du texte.
-     * @return string
-     */
-    Style.prototype.getTextAlign = function(){
-        return this.textAlign;
-    };
-
-    /**
-     * Retourne le type d'alignement baseline.
-     * @return string
-     */
-    Style.prototype.getBaseline = function(){
-        return this.textBaseline;
-    };
-
-    /**
-     * Retourne la font utilisée.
-     * @return string
-     */
-    Style.prototype.getFont = function(){
-        return this.font;
-    };
-
-    /**
-     * Retourne l'épaisseur du traçage.
-     * @return number
-     */
-    Style.prototype.getLineWidth = function(){
-        return this.lineWidth;
-    };
-
-    /**
-     * Retourne la couleur de remplissage.
-     * @return string
-     */
-    Style.prototype.getFillColor = function(){
-        return this.fillStyle;
-    };
-
-    /**
-     *  Retourne la couleur de traçage.
-     * @return string
-     */
-    Style.prototype.getColor = function(){
-        return this.strokeStyle;
-    };
-
-    /**
-     * Applique le style au context et sauve l'état du contexte.
-     */
-    Style.prototype.apply = function( context ){
-        var i, property;
-        // sauvegarde du style du context
-        for ( i in this.paramContext ){
-            property = this.paramContext[ i ];
-            this.context[ property ] = context[ property ];
-        }
-        // application du style
-        for ( i in this.paramContext ){
-            property = this.paramContext[ i ];
-            context[ property ] = this[ property ];
-        }
-        
-    };
-
-    /**
-     * Permet de rétablir l'état du context sauvé.
-     */
-    Style.prototype.restore = function( context ){
-        for ( var i in this.paramContext ){
-            var property = this.paramContext[ i ];
-            context[ property ] = this.context[ property ];
-        }
-    };
-    
-    window.stateAutomaton.graphic.Style = Style;
- })(window);
-/**
  * Classe Text
  * @author Pierre-Luc BLOT
  * @created 16/11/15
  *
  * @requires StateAutomaton.src.js
+ * @requires Style.src.js
  */
 
  (function(window){

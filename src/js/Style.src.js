@@ -35,7 +35,6 @@
         this.font = param.font ? param.font : '20px Helvetica';
         this.textAlign = param.textAlign ? param.textAlign : "left";
         this.textBaseline = param.baseline ? param.baseline : "top";
-
         this.context = {};
         this.paramContext = [ 
             'lineWidth', 'fillStyle', 'strokeStyle', 'textBaseline', 'textAlign', 'font'
