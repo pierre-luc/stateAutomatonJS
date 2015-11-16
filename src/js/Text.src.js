@@ -4,6 +4,7 @@
  * @created 16/11/15
  *
  * @requires StateAutomaton.src.js
+ * @requires Style.src.js
  */
 
  (function(window){
