@@ -166,6 +166,14 @@
         });
 
         this.norm = this.start.distance( this.end );
+        this.style = param.style ? param.style : null;
+    };
+
+    Line.prototype.getStyle = function(){
+        return this.style;
+    };
+    Line.prototype.setStyle = function( style ){
+        this.style = style;
     };
 
     /**
@@ -194,9 +202,15 @@
             context = window.stateAutomaton.graphic.defaultContext;
         }
         context.beginPath();
+        if ( this.style ){
+            this.style.apply( context );
+        }
         context.moveTo( this.start.getCoord().x, this.start.getCoord().y );
         context.lineTo( this.end.getCoord().x, this.end.getCoord().y );
         context.stroke();
+        if ( this.style ){
+            this.style.restore( context );
+        }
     };
 
     /**
@@ -757,6 +771,125 @@
 	window.stateAutomaton.graphic.Circle = Circle;
  })(window);
 /**
+ * Classe Style
+ * @author Pierre-Luc BLOT
+ * @created 16/11/15
+ *
+ * @requires StateAutomaton.src.js
+ */
+
+ (function(window){
+    'use strict';
+
+    /**
+     * Construit un Style permettant de modifier le style d'un context.
+     * @constructor
+     * @param param.lineWidth: number
+     *  Epaisseur du traçage
+     * @param param.fillColor: string
+     *  Couleur de remplissage
+     * @param param.color: string
+     *  Couleur de traçage
+     * @param param.font: string
+     *  Font utilisée pour le texte
+     * @param param.textAlign: string
+     *  Alignement du texte: left|center|right
+     * @param param.baseline: string
+     *  Baseline: bottom|middle|top
+     */
+    var Style = function( param ) {
+        this.lineWidth = param.lineWidth ? param.lineWidth : 1;
+        this.fillStyle = param.fillColor ? param.fillColor : 'white';
+        this.strokeStyle = param.color ? param.color : 'black';
+        this.font = param.font ? param.font : '20px Helvetica';
+        this.textAlign = param.textAlign ? param.textAlign : "left";
+        this.textBaseline = param.baseline ? param.baseline : "top";
+
+        this.context = {};
+        this.paramContext = [ 
+            'lineWidth', 'fillStyle', 'strokeStyle', 'textBaseline', 'textAlign', 'font'
+        ];
+    };
+
+    /**
+     * Retourne le type d'alignement du texte.
+     * @return string
+     */
+    Style.prototype.getTextAlign = function(){
+        return this.textAlign;
+    };
+
+    /**
+     * Retourne le type d'alignement baseline.
+     * @return string
+     */
+    Style.prototype.getBaseline = function(){
+        return this.textBaseline;
+    };
+
+    /**
+     * Retourne la font utilisée.
+     * @return string
+     */
+    Style.prototype.getFont = function(){
+        return this.font;
+    };
+
+    /**
+     * Retourne l'épaisseur du traçage.
+     * @return number
+     */
+    Style.prototype.getLineWidth = function(){
+        return this.lineWidth;
+    };
+
+    /**
+     * Retourne la couleur de remplissage.
+     * @return string
+     */
+    Style.prototype.getFillColor = function(){
+        return this.fillStyle;
+    };
+
+    /**
+     *  Retourne la couleur de traçage.
+     * @return string
+     */
+    Style.prototype.getColor = function(){
+        return this.strokeStyle;
+    };
+
+    /**
+     * Applique le style au context et sauve l'état du contexte.
+     */
+    Style.prototype.apply = function( context ){
+        var i, property;
+        // sauvegarde du style du context
+        for ( i in this.paramContext ){
+            property = this.paramContext[ i ];
+            this.context[ property ] = context[ property ];
+        }
+        // application du style
+        for ( i in this.paramContext ){
+            property = this.paramContext[ i ];
+            context[ property ] = this[ property ];
+        }
+        
+    };
+
+    /**
+     * Permet de rétablir l'état du context sauvé.
+     */
+    Style.prototype.restore = function( context ){
+        for ( var i in this.paramContext ){
+            var property = this.paramContext[ i ];
+            context[ property ] = this.context[ property ];
+        }
+    };
+    
+    window.stateAutomaton.graphic.Style = Style;
+ })(window);
+/**
  * Classe Text
  * @author Pierre-Luc BLOT
  * @created 16/11/15
@@ -774,21 +907,28 @@
      *  Point de départ du texte
      * @param param.text: string
      *  Texte à afficher
+     * @param param.style: Style
+     *  Style du tracé.
      */
     var Text = function( param ) {
         this.text = param.text;
         this.point = param.point;
-
+        this.style = param.style ? param.style : new stateAutomaton.graphic.Style();
          // todo:  les param non explicit seront implémentés ultérieurement
-        this.font = param.font ? param.font : '20px Helvetica'; // param non explicit
-        this.textAlign = param.textAlign ? param.textAlign : "left"; // param non explicit
-        this.textBaseline = param.baseline ? param.baseline : "top"; // param non explicit
-        var fillColor = 'black'; // param non explicit
-        if ( param.color ){
-            fillColor = o.color.fill ? o.color.fill : fillColor;
-        }
-        this.fillColor = fillColor;
+        this.font = this.style.getFont();
+        this.textAlign = this.style.getTextAlign();
+        this.textBaseline = this.style.getBaseline();
+        this.fillColor = this.style.getFillColor();
     };
+
+    /** 
+     * Retourne le style de la ligne.
+     * @return Style
+     */
+    Text.prototype.getStyle = function(){
+        return this.style;
+    };
+
     /**
      * Retourne le texte à afficher.
      * @return string
@@ -824,12 +964,10 @@
             context = window.stateAutomaton.graphic.defaultContext;
         }
         context.beginPath();        
-        context.font = this.font;
-        context.textAlign = this.textAlign;
-        context.textBaseline = this.textBaseline;
-        context.fillStyle = this.fillColor;
+        this.style.apply( context );
         context.fillText( this.text, this.point.getCoord().x, this.point.getCoord().y );
         context.stroke();
+        this.style.restore( context );
     };
 
     window.stateAutomaton.graphic.Text = Text;
