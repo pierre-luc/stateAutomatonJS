@@ -1,0 +1,27 @@
+{
+  "name": "stateAutomatonJS",
+  "description": "Bibliothèque JS permettant de dessiner des automates.",
+  "main": "gulpfile.js",
+  "authors": [
+    "Pierre-Luc BLOT"
+  ],
+  "license": "ISC",
+  "keywords": [
+    "state",
+    "automaton",
+    "etat",
+    "automate",
+    "javascript",
+    "library",
+    "bibliothèque"
+  ],
+  "homepage": "https://github.com/pierre-luc/stateAutomatonJS",
+  "moduleType": [],
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}

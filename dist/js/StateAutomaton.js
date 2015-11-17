@@ -49,6 +49,13 @@
              */
             setDefaultContext: function( context ){
                 this.defaultContext = context;
+            },
+            /**
+             * @param canvas
+             * @param antialising
+             */
+            createEnvironment: function( canvas, antialiasing ){
+                // résolu dans le fichier graphic/Environment.src.js
             }
         }
     };
@@ -96,6 +103,10 @@
         this.x = coord.x;
         this.y = coord.y;
     };
+
+    Point.prototype.setName = function( name ){
+        this.name = name;
+    };
     
     /**
      * Dessine le point dans le context2D.
@@ -126,173 +137,6 @@
     };
     window.stateAutomaton.graphic.Point = Point;
 })(window);
-/**
- * Classe Grid
- * @author Pierre-Luc BLOT
- * @created 16/11/15
- *
- * @requires ../StateAutomaton.src.js
- * @requires ../graphic/Point.src.js
- */
-
- (function(window){
-    'use strict';
-
-    /**
-     * Construit une grille permettant d'y placer des éléments.
-     * @constructor
-     * @param param.row: number
-     * @param param.col: number
-     * @param param.width: number
-     * @param param.height: number
-     */
-    var Grid = function( param ) {
-        this.row = param.row;
-        this.col = param.col;
-        this.width = param.width;
-        this.height = param.height;
-        this.colExtendCount = 0;
-        this.rowExtendCount = 0;
-        this.cell = {
-            width: this.width / this.col,
-            height: this.height / this.row
-        };
-    };
-
-    Grid.prototype.getSizeCell = function(){
-        return this.cell;
-    };
-
-    Grid.prototype.getRow = function(){
-        return this.row;
-    };
-
-    Grid.prototype.getCol = function(){
-        return this.col;
-    };
-
-    Grid.prototype.getHeight = function(){
-        return this.height;
-    };
-
-    Grid.prototype.getWidth = function(){
-        return this.width;
-    };
-
-    Grid.prototype.extendCol = function( canvas ){
-        if ( typeof canvas === "undefined" ){
-            throw "Un canvas doit être passé en paramètre";
-        }
-        var context = stateAutomaton.graphic.getContext( canvas );
- 
-        // save the canvas content as imageURL
-        var data = canvas.toDataURL();
-        // resize the canvas
-        context.save();
-        this.width += this.cell.width;
-        ++this.col;
-        ++this.colExtendCount;
-        canvas.width = this.width;
-
-       
-        // scale and redraw the canvas content
-        var img = new Image();
-        var self = this;
-        img.onload = function(){
-            context.drawImage(img, 0, 0, img.width, img.height, 0, 0, canvas.width - self.colExtendCount * self.cell.width, canvas.height - self.rowExtendCount * self.cell.height );
-            context.restore();
-        }
-        img.src = data;
-    };
-
-
-    Grid.prototype.extendRow = function( canvas ){
-        if ( typeof canvas === "undefined" ){
-            throw "Un canvas doit être passé en paramètre";
-        }
-        var context = stateAutomaton.graphic.getContext( canvas );
- 
-        // save the canvas content as imageURL
-        var data = canvas.toDataURL();
-        // resize the canvas
-        context.save();
-        this.height += this.cell.height;
-        ++this.row;
-        ++this.rowExtendCount;
-        canvas.height = this.height;
-
-       
-        // scale and redraw the canvas content
-        var img = new Image();
-        var self = this;
-        img.onload = function(){
-            context.drawImage(img, 0, 0, img.width, img.height, 0, 0, canvas.width - self.colExtendCount * self.cell.width, canvas.height - self.rowExtendCount * self.cell.height );
-            context.restore();
-        }
-        img.src = data;
-    };
-
-    Grid.prototype.getCellAt = function( col, row ){
-        
-        function createPoint( x, y, name ){
-            return new stateAutomaton.graphic.Point({
-                coord: { x:x, y:y },
-                name: name ? name : ""
-            });
-        }
-
-        var cell = {
-            top: {
-                left: createPoint( col * this.cell.width, row * this.cell.height ),
-                center: createPoint( 
-                    ( col * this.cell.width + ( col + 1 ) * this.cell.width ) / 2,
-                    row * this.cell.height
-                ),
-                right: createPoint( ( col + 1 ) * this.cell.width, row * this.cell.height )
-            },
-            bottom: {
-                left: createPoint( col * this.cell.width, ( row + 1 ) * this.cell.height ),
-                center: createPoint( 
-                    ( col * this.cell.width + ( col + 1 ) * this.cell.width ) / 2,
-                    ( row + 1 ) * this.cell.height
-                ),
-                right: createPoint( ( col + 1 ) * this.cell.width, ( row + 1 ) * this.cell.height )
-            },
-            middle: createPoint( 
-                (col * this.cell.width + (col + 1) * this.cell.width) / 2,
-                (row * this.cell.height + (row + 1) * this.cell.height) / 2,
-                "(" + col + ", " + row + ")"
-            )
-        };
-        return cell;
-    };
-
-    Grid.prototype.getMatrix = function(){
-        var matrix = [];
-        for ( var col = 0; col < this.col; ++col ){
-            matrix[ col ] = [];
-            for ( var row = 0; row < this.row; ++row ){
-                matrix[ col ][ row ] = this.getCellAt( col, row );
-            }
-        }
-        return matrix;
-    };
-
-    Grid.prototype.drawCell = function( cell, context ){
-        if ( typeof context === "undefined" ){
-            context = window.stateAutomaton.graphic.defaultContext;
-        }
-        context.beginPath();
-        context.moveTo( cell.top.left.getCoord().x, cell.top.left.getCoord().y );
-        context.lineTo( cell.top.right.getCoord().x, cell.top.right.getCoord().y );
-        context.lineTo( cell.bottom.right.getCoord().x, cell.bottom.right.getCoord().y );
-        context.lineTo( cell.bottom.left.getCoord().x, cell.bottom.left.getCoord().y );
-        context.lineTo( cell.top.left.getCoord().x, cell.top.left.getCoord().y );
-        context.stroke();
-    }
-
-    window.stateAutomaton.pattern.Grid = Grid;
- })(window);
 /**
  * Classe Style
  * @author Pierre-Luc BLOT
@@ -503,16 +347,7 @@
         this.start = param.start;
         this.end = param.end;
         
-        if ( this.start.getCoord().x == this.end.getCoord().x ){
-            this.angle = Math.PI / 2;
-        } else if ( this.start.getCoord().y == this.end.getCoord().y ){
-            this.angle = 0;
-        } else {
-            this.angle = Math.atan( 
-                ( this.end.getCoord().y - this.start.getCoord().y ) / 
-                ( this.end.getCoord().x - this.start.getCoord().x )
-            );
-        }
+        computeAngle( this );
 
         this.middle = new stateAutomaton.graphic.Point({
             coord:{
@@ -523,6 +358,19 @@
 
         this.norm = this.start.distance( this.end );
         this.style = param.style ? param.style : new stateAutomaton.graphic.Style();
+    };
+
+    var computeAngle = function( self ){
+        if ( self.start.getCoord().x == self.end.getCoord().x ){
+            self.angle = Math.PI / 2;
+        } else if ( self.start.getCoord().y == self.end.getCoord().y ){
+            self.angle = 0;
+        } else {
+            self.angle = Math.atan( 
+                ( self.end.getCoord().y - self.start.getCoord().y ) / 
+                ( self.end.getCoord().x - self.start.getCoord().x )
+            );
+        }
     };
 
     Line.prototype.getStyle = function(){
@@ -570,6 +418,7 @@
      * L'angle est exprimé en Radian et est orienté.
      */
     Line.prototype.getAngle = function(){
+        computeAngle( this );
         return this.angle;
     };
 
@@ -623,29 +472,34 @@
         this.end = param.end;
         this.height = param.height;
         this.style = param.style ? param.style : new stateAutomaton.graphic.Style();
-        var baseArc = new stateAutomaton.graphic.Line({
-            start: this.start,
-            end: this.end
+
+        computeControls( this );
+    };
+
+    var computeControls = function( self ){
+        var baseself = new stateAutomaton.graphic.Line({
+            start: self.start,
+            end: self.end
         });
 
-        this.control1 = new stateAutomaton.graphic.Point({
+        self.control1 = new stateAutomaton.graphic.Point({
             coord:{
-                x: this.start.getCoord().x + this.height * Math.cos( baseArc.getAngle() + Math.PI / 2 + Math.PI / 11),
-                y: this.start.getCoord().y + this.height * Math.sin( baseArc.getAngle() + Math.PI / 2 + Math.PI / 11)
+                x: self.start.getCoord().x + self.height * Math.cos( baseself.getAngle() + Math.PI / 2 + Math.PI / 11),
+                y: self.start.getCoord().y + self.height * Math.sin( baseself.getAngle() + Math.PI / 2 + Math.PI / 11)
             }
         });
 
-        this.control2 = new stateAutomaton.graphic.Point({
+        self.control2 = new stateAutomaton.graphic.Point({
             coord:{
-                x: this.end.getCoord().x + this.height * Math.cos( baseArc.getAngle() + Math.PI / 2 - Math.PI / 11),
-                y: this.end.getCoord().y + this.height * Math.sin( baseArc.getAngle() + Math.PI / 2 - Math.PI / 11)
+                x: self.end.getCoord().x + self.height * Math.cos( baseself.getAngle() + Math.PI / 2 - Math.PI / 11),
+                y: self.end.getCoord().y + self.height * Math.sin( baseself.getAngle() + Math.PI / 2 - Math.PI / 11)
             }
         });
 
-        this.middleControl = new stateAutomaton.graphic.Point({
+        self.middleControl = new stateAutomaton.graphic.Point({
             coord: {
-                x: ( this.control1.getCoord().x + this.control2.getCoord().x ) / 2,
-                y: ( this.control1.getCoord().y + this.control2.getCoord().y ) / 2
+                x: ( self.control1.getCoord().x + self.control2.getCoord().x ) / 2,
+                y: ( self.control1.getCoord().y + self.control2.getCoord().y ) / 2
             }
         });
     };
@@ -658,7 +512,13 @@
         return this.height;
     };
 
+    Arc.prototype.setHeight = function( height ){
+        this.height = height;
+        computeControls( this );
+    };
+
     Arc.prototype.getMiddleControlPoint = function(){
+        computeControls( this );
         return this.middleControl;
     };
 
@@ -667,6 +527,7 @@
      * @return Point
      */
     Arc.prototype.getStartControlPoint = function(){
+        computeControls( this );
         return this.control1;
     };
 
@@ -675,6 +536,7 @@
      * @return Point
      */
     Arc.prototype.getEndControlPoint = function(){
+        computeControls( this );
         return this.control2;
     };
 
@@ -1020,40 +882,44 @@
             this.direction = param.direction;
         }
 
+        configureArrow( this );
+    };
+
+    var configureArrow = function( self ){
         var dxs = 0,
             dys = 0,
             dxe = 0,
             dye = 0,
             angle = new stateAutomaton.graphic.Line({
-                start: this.start,
-                end: this.end
+                start: self.start,
+                end: self.end
             }).getAngle();
             
 
 
         var S = new stateAutomaton.graphic.Point({
             coord:{
-                x: this.start.getCoord().x + dxs,
-                y: this.start.getCoord().y + dys
+                x: self.start.getCoord().x + dxs,
+                y: self.start.getCoord().y + dys
             }
         });
         var E = new stateAutomaton.graphic.Point({
             coord:{
-                x: this.end.getCoord().x + dxe,
-                y: this.end.getCoord().y + dye
+                x: self.end.getCoord().x + dxe,
+                y: self.end.getCoord().y + dye
             }
         });
 
-        this.line = new stateAutomaton.graphic.Line({
+        self.line = new stateAutomaton.graphic.Line({
             start: S,
             end: E,
-            style: this.style
+            style: self.style
         });
 
 
         var angleStart = angle;
         var angleEnd = angle + Math.PI;
-        var v = this.line.getVector();
+        var v = self.line.getVector();
 
         if ( v.x > 0 && v.y < 0 ){ // haut droite
             angleStart = angle + Math.PI;
@@ -1065,23 +931,21 @@
         }
 
         
-        this.endHeadArrow = new stateAutomaton.graphic.HeadArrow({
-            origin: this.start,
+        self.endHeadArrow = new stateAutomaton.graphic.HeadArrow({
+            origin: self.start,
             angle:  angleStart,
             height: 5,
             width: 5,
-            style: this.style
+            style: self.style
         });
     
-        this.startHeadArrow = new stateAutomaton.graphic.HeadArrow({
-            origin: this.end,
+        self.startHeadArrow = new stateAutomaton.graphic.HeadArrow({
+            origin: self.end,
             angle: angleEnd,
             height: 5,
             width: 5,
-            style: this.style
-        });            
-    
-
+            style: self.style
+        }); 
     };
 
     /**
@@ -1116,6 +980,7 @@
         if ( typeof context === "undefined" ){
             context = window.stateAutomaton.graphic.defaultContext;
         }
+        configureArrow( this );
         this.line.draw( context );
         if ( this.direction == 'right' || this.direction == 'both' ){
             this.endHeadArrow.draw( context );
@@ -1282,4 +1147,171 @@
     };
 
     window.stateAutomaton.graphic.Text = Text;
+ })(window);
+/**
+ * Classe Grid
+ * @author Pierre-Luc BLOT
+ * @created 16/11/15
+ *
+ * @requires ../StateAutomaton.src.js
+ * @requires ../graphic/Point.src.js
+ */
+
+ (function(window){
+    'use strict';
+
+    /**
+     * Construit une grille permettant d'y placer des éléments.
+     * @constructor
+     * @param param.row: number
+     * @param param.col: number
+     * @param param.width: number
+     * @param param.height: number
+     */
+    var Grid = function( param ) {
+        this.row = param.row;
+        this.col = param.col;
+        this.width = param.width;
+        this.height = param.height;
+        this.colExtendCount = 0;
+        this.rowExtendCount = 0;
+        this.cell = {
+            width: this.width / this.col,
+            height: this.height / this.row
+        };
+    };
+
+    Grid.prototype.getSizeCell = function(){
+        return this.cell;
+    };
+
+    Grid.prototype.getRow = function(){
+        return this.row;
+    };
+
+    Grid.prototype.getCol = function(){
+        return this.col;
+    };
+
+    Grid.prototype.getHeight = function(){
+        return this.height;
+    };
+
+    Grid.prototype.getWidth = function(){
+        return this.width;
+    };
+
+    Grid.prototype.extendCol = function( canvas ){
+        if ( typeof canvas === "undefined" ){
+            throw "Un canvas doit être passé en paramètre";
+        }
+        var context = stateAutomaton.graphic.getContext( canvas );
+ 
+        // save the canvas content as imageURL
+        var data = canvas.toDataURL();
+        // resize the canvas
+        context.save();
+        this.width += this.cell.width;
+        ++this.col;
+        ++this.colExtendCount;
+        canvas.width = this.width;
+
+       
+        // scale and redraw the canvas content
+        var img = new Image();
+        var self = this;
+        img.onload = function(){
+            context.drawImage(img, 0, 0, img.width, img.height, 0, 0, canvas.width - self.colExtendCount * self.cell.width, canvas.height - self.rowExtendCount * self.cell.height );
+            context.restore();
+        }
+        img.src = data;
+    };
+
+
+    Grid.prototype.extendRow = function( canvas ){
+        if ( typeof canvas === "undefined" ){
+            throw "Un canvas doit être passé en paramètre";
+        }
+        var context = stateAutomaton.graphic.getContext( canvas );
+ 
+        // save the canvas content as imageURL
+        var data = canvas.toDataURL();
+        // resize the canvas
+        context.save();
+        this.height += this.cell.height;
+        ++this.row;
+        ++this.rowExtendCount;
+        canvas.height = this.height;
+
+       
+        // scale and redraw the canvas content
+        var img = new Image();
+        var self = this;
+        img.onload = function(){
+            context.drawImage(img, 0, 0, img.width, img.height, 0, 0, canvas.width - self.colExtendCount * self.cell.width, canvas.height - self.rowExtendCount * self.cell.height );
+            context.restore();
+        }
+        img.src = data;
+    };
+
+    Grid.prototype.getCellAt = function( col, row ){
+        
+        function createPoint( x, y, name ){
+            return new stateAutomaton.graphic.Point({
+                coord: { x:x, y:y },
+                name: name ? name : ""
+            });
+        }
+
+        var cell = {
+            top: {
+                left: createPoint( col * this.cell.width, row * this.cell.height ),
+                center: createPoint( 
+                    ( col * this.cell.width + ( col + 1 ) * this.cell.width ) / 2,
+                    row * this.cell.height
+                ),
+                right: createPoint( ( col + 1 ) * this.cell.width, row * this.cell.height )
+            },
+            bottom: {
+                left: createPoint( col * this.cell.width, ( row + 1 ) * this.cell.height ),
+                center: createPoint( 
+                    ( col * this.cell.width + ( col + 1 ) * this.cell.width ) / 2,
+                    ( row + 1 ) * this.cell.height
+                ),
+                right: createPoint( ( col + 1 ) * this.cell.width, ( row + 1 ) * this.cell.height )
+            },
+            middle: createPoint( 
+                (col * this.cell.width + (col + 1) * this.cell.width) / 2,
+                (row * this.cell.height + (row + 1) * this.cell.height) / 2,
+                "(" + col + ", " + row + ")"
+            )
+        };
+        return cell;
+    };
+
+    Grid.prototype.getMatrix = function(){
+        var matrix = [];
+        for ( var col = 0; col < this.col; ++col ){
+            matrix[ col ] = [];
+            for ( var row = 0; row < this.row; ++row ){
+                matrix[ col ][ row ] = this.getCellAt( col, row );
+            }
+        }
+        return matrix;
+    };
+
+    Grid.prototype.drawCell = function( cell, context ){
+        if ( typeof context === "undefined" ){
+            context = window.stateAutomaton.graphic.defaultContext;
+        }
+        context.beginPath();
+        context.moveTo( cell.top.left.getCoord().x, cell.top.left.getCoord().y );
+        context.lineTo( cell.top.right.getCoord().x, cell.top.right.getCoord().y );
+        context.lineTo( cell.bottom.right.getCoord().x, cell.bottom.right.getCoord().y );
+        context.lineTo( cell.bottom.left.getCoord().x, cell.bottom.left.getCoord().y );
+        context.lineTo( cell.top.left.getCoord().x, cell.top.left.getCoord().y );
+        context.stroke();
+    }
+
+    window.stateAutomaton.pattern.Grid = Grid;
  })(window);
