@@ -38,6 +38,10 @@
         this.x = coord.x;
         this.y = coord.y;
     };
+
+    Point.prototype.setName = function( name ){
+        this.name = name;
+    };
     
     /**
      * Dessine le point dans le context2D.

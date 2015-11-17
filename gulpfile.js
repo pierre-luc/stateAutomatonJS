@@ -57,4 +57,4 @@ gulp.task( 'watch', function() {
   gulp.watch( './src/js/**/*.src.js', [ 'js' ] );
 });
 
-gulp.task( 'default', [ 'watch' ] );
+gulp.task( 'default', [ 'watch', 'css', 'js' ] );

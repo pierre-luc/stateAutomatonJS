@@ -20,9 +20,10 @@
 	 */
 	var Circle = function( param ) {
 		this.center = param.center;
+		this.pointRadius = null;
 		var radius = param.radius;
 		if ( typeof param.radius !== "number" ){
-			this.setRadius( param.point );
+			this.setPointRadius( param.point );
 		} else {
 			this.setRadius( param.radius );
 		}
@@ -53,14 +54,32 @@
 	};
 
 	/**
+	 * Met à jour le centre du cercle.
+	 * @param center: Point
+	 *	Centre du cercle.
+	 */
+	Circle.prototype.updateCenter = function( center ){
+		this.center.setCoord( center.getCoord() );
+		if ( this.pointRadius !== null ){
+			this.setPointRadius( this.pointRadius );
+		}
+	};
+
+	/**
 	 * Définit un nouveau rayon pour le cercle.
-	 * @param radius:number || radius:Point
+	 * @param radius:number
 	 */
 	Circle.prototype.setRadius = function( radius ){
-		if ( typeof radius !== "number" ){
-			radius = this.center.distance( radius );
-		}
 		this.radius = radius;
+	};
+
+	/**
+	 * Définit un nouveau rayon pour le cercle.
+	 * @param radius:Point
+	 */
+	Circle.prototype.setPointRadius = function( radius ){
+		this.pointRadius = radius;
+		this.radius = this.center.distance( radius );
 	};
 
 	/**

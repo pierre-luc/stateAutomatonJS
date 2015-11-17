@@ -72,6 +72,7 @@
 
 
             var intersection = circle.getPoint( k * Math.PI / 5 );
+            intersection.setName( "intersection" );
             var circle2 = new sa.graphic.Circle({
                 center: intersection,
                 point: A
@@ -128,10 +129,11 @@
         env2.draw();
 
         function animate( env ){
+
             var circle = env.getElement( 'circle' );
             var intersection = circle.getPoint( k * Math.PI / 5 );
             var circle2 = env.getElement( 'circle2' );{
-                circle2.setCenter( intersection );
+                circle2.updateCenter( intersection );
             }
             var E = env.getElement( 'E' );
             E.setCoord( circle2.getPoint( k * Math.PI / 5 ) .getCoord() );
