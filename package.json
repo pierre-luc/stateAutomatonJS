@@ -1,6 +1,6 @@
 {
   "name": "stateAutomatonJS",
-  "version": "0.0.0",
+  "version": "0.5.1",
   "description": "Bibliothèque JS permettant de dessiner des automates.",
   "main": "gulpfile.js",
   "scripts": {
@@ -33,6 +33,7 @@
     "gulp-rename": "^1.2.2",
     "gulp-resolve-dependencies": "^2.2.0",
     "gulp-sass": "^2.1.0",
-    "gulp-uglify": "^1.4.2"
+    "gulp-uglify": "^1.4.2",
+    "jquery": "2.1.4"
   }
 }

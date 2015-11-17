@@ -37,10 +37,12 @@
     Point.prototype.setCoord = function( coord ){
         this.x = coord.x;
         this.y = coord.y;
+        $( this ).trigger( 'change' );
     };
 
     Point.prototype.setName = function( name ){
         this.name = name;
+        $( this ).trigger( 'change' );
     };
     
     /**

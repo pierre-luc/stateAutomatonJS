@@ -34,6 +34,11 @@
         this.style = param.style ? param.style : new stateAutomaton.graphic.Style();
         param.style = this.style;
         this.arc = new stateAutomaton.graphic.Arc( param );
+
+        $( this.arc ).on( 'change', function(){
+            $( self ).trigger( 'change' );
+        });
+        
         var bez1 = {
             sx: this.arc.getStartPoint().getCoord().x,
             sy: this.arc.getStartPoint().getCoord().y,

@@ -1,5 +1,5 @@
 /*!
- * StateAutomatonJS - v0.5.1
+ * StateAutomatonJS - v0.6.0
  * @author Pierre-Luc BLOT
  * @created 13/11/15
  */
@@ -9,7 +9,6 @@
         graphic: {
             defaultContext: null,
             antialiasing: true,
-
             /**
              * Retourne le context2D d'un canvas et permet d'activer l'anti-aliasing.
              * @param canvas:Element

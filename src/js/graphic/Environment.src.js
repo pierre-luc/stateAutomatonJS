@@ -21,10 +21,8 @@
         }
         this.canvas = canvas;
         this.context = stateAutomaton.graphic.getContext( canvas, antialiasing );
-        this.elementsCount = 0;
-        this.elements = {};
+        this.elements = [];
     };
-
 
     Environment.prototype.getWidth = function(){
         return this.canvas.width;
@@ -34,22 +32,22 @@
         return this.canvas.width;
     };
 
-    Environment.prototype.addElement = function( name, element ){
-        if ( typeof this.elements[ name ] === "undefined" ){
-            this.elements[ name ] = element;
-            ++this.elementsCount;
+    Environment.prototype.addElement = function( element ){
+        if ( typeof element === "undefined" ){
+            throw "Impossible d'ajouter undefined";
         }
+        this.elements.push( element );
     };
 
     Environment.prototype.addElements = function( elements ){
+        if ( typeof elements === "undefined" ){
+            throw "Impossible d'ajouter undefined";
+        }
         for ( var i in elements ){
-            this.addElement( i, elements[ i ] );
+            this.addElement( elements[ i ] );
         }
     };
 
-    Environment.prototype.getElement = function( name ){
-        return this.elements[ name ];
-    };
 
     Environment.prototype.getContext = function(){
         return this.context;

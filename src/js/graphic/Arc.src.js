@@ -30,8 +30,30 @@
         this.end = param.end;
         this.height = param.height;
         this.style = param.style ? param.style : new stateAutomaton.graphic.Style();
+        var self = this;
+        
+        $( this.start ).on( 'change', function(){
+            computeControls( self );
+            $( self ).trigger( 'change' );
+        });
 
-        computeControls( this );
+        $( this.end ).on( 'change', function(){
+            computeControls( self );
+            $( self ).trigger( 'change' );
+        });
+
+        $( this ).on( 'height_change', function(){
+            computeControls( self );
+            $( self ).trigger( 'change' );
+        });
+
+        $( this ).on( 'change', function(){
+            self.middleControl.setCoord({
+                x: ( self.control1.getCoord().x + self.control2.getCoord().x ) / 2,
+                y: ( self.control1.getCoord().y + self.control2.getCoord().y ) / 2
+            });
+        });
+        computeControls( self );
     };
 
     var computeControls = function( self ){
@@ -72,11 +94,10 @@
 
     Arc.prototype.setHeight = function( height ){
         this.height = height;
-        computeControls( this );
+        $( this ).trigger( 'height_change' );
     };
 
     Arc.prototype.getMiddleControlPoint = function(){
-        computeControls( this );
         return this.middleControl;
     };
 
@@ -85,7 +106,6 @@
      * @return Point
      */
     Arc.prototype.getStartControlPoint = function(){
-        computeControls( this );
         return this.control1;
     };
 
@@ -94,7 +114,6 @@
      * @return Point
      */
     Arc.prototype.getEndControlPoint = function(){
-        computeControls( this );
         return this.control2;
     };
 

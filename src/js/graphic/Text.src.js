@@ -23,6 +23,11 @@
     var Text = function( param ) {
         this.text = param.text;
         this.point = param.point;
+        var self = this;
+        $( this.point ).on( 'change', function(){
+            $( self ).trigger( 'change' );
+        });
+
         this.style = param.style ? param.style : new stateAutomaton.graphic.Style();
          // todo:  les param non explicit seront implémentés ultérieurement
         this.font = this.style.getFont();
@@ -52,6 +57,11 @@
      */
     Text.prototype.getPoint = function(){
         return this.point;
+    };
+
+    Text.prototype.setPoint = function( point ){
+        this.point = point;
+        $( this ).trigger( 'change' );
     };
 
     /**

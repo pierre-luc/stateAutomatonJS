@@ -1,5 +1,5 @@
 /*!
- * StateAutomatonJS - v0.5.1
+ * StateAutomatonJS - v0.6.0
  * @author Pierre-Luc BLOT
  * @created 13/11/15
  */
@@ -9,7 +9,6 @@
         graphic: {
             defaultContext: null,
             antialiasing: true,
-
             /**
              * Retourne le context2D d'un canvas et permet d'activer l'anti-aliasing.
              * @param canvas:Element
@@ -102,10 +101,12 @@
     Point.prototype.setCoord = function( coord ){
         this.x = coord.x;
         this.y = coord.y;
+        $( this ).trigger( 'change' );
     };
 
     Point.prototype.setName = function( name ){
         this.name = name;
+        $( this ).trigger( 'change' );
     };
     
     /**
@@ -347,13 +348,31 @@
         this.start = param.start;
         this.end = param.end;
         
-        computeAngle( this );
+        var self = this;
+        $( this ).on( 'start_change', function(){
+            computeAngle( self );
+        });
 
-        this.middle = new stateAutomaton.graphic.Point({
-            coord:{
-                x: ( this.start.getCoord().x + this.end.getCoord().x ) / 2,
-                y: ( this.start.getCoord().y + this.end.getCoord().y ) / 2
-            }
+        $( this ).on( 'end_change', function(){
+            computeAngle( self );
+        });
+
+        $( this.start ).on( 'change', function(){
+           computeAngle( self );
+        });
+
+        $( this.end ).on( 'change', function(){
+           computeAngle( self );
+        });
+        computeAngle( self );
+
+        $( this ).on( 'change', function(){
+            self.middle = new stateAutomaton.graphic.Point({
+                coord:{
+                    x: ( self.start.getCoord().x + self.end.getCoord().x ) / 2,
+                    y: ( self.start.getCoord().y + self.end.getCoord().y ) / 2
+                }
+            });
         });
 
         this.norm = this.start.distance( this.end );
@@ -396,6 +415,18 @@
         return this.end;
     };
 
+    Line.prototype.setStartPoint = function( point ){
+        this.start = point;
+        $( this ).trigger( 'start_change' );
+        $( this ).trigger( 'change' );
+    };
+
+    Line.prototype.setEndPoint = function( point ){
+        this.end = point;
+        $( this ).trigger( 'end_change' );
+        $( this ).trigger( 'change' );
+    };
+
     /**
      * Dessine la ligne entre le point de départ et d'arrivé.
      * @param context:CanvasRenderingContext2D
@@ -418,7 +449,6 @@
      * L'angle est exprimé en Radian et est orienté.
      */
     Line.prototype.getAngle = function(){
-        computeAngle( this );
         return this.angle;
     };
 
@@ -472,8 +502,30 @@
         this.end = param.end;
         this.height = param.height;
         this.style = param.style ? param.style : new stateAutomaton.graphic.Style();
+        var self = this;
+        
+        $( this.start ).on( 'change', function(){
+            computeControls( self );
+            $( self ).trigger( 'change' );
+        });
 
-        computeControls( this );
+        $( this.end ).on( 'change', function(){
+            computeControls( self );
+            $( self ).trigger( 'change' );
+        });
+
+        $( this ).on( 'height_change', function(){
+            computeControls( self );
+            $( self ).trigger( 'change' );
+        });
+
+        $( this ).on( 'change', function(){
+            self.middleControl.setCoord({
+                x: ( self.control1.getCoord().x + self.control2.getCoord().x ) / 2,
+                y: ( self.control1.getCoord().y + self.control2.getCoord().y ) / 2
+            });
+        });
+        computeControls( self );
     };
 
     var computeControls = function( self ){
@@ -514,11 +566,10 @@
 
     Arc.prototype.setHeight = function( height ){
         this.height = height;
-        computeControls( this );
+        $( this ).trigger( 'height_change' );
     };
 
     Arc.prototype.getMiddleControlPoint = function(){
-        computeControls( this );
         return this.middleControl;
     };
 
@@ -527,7 +578,6 @@
      * @return Point
      */
     Arc.prototype.getStartControlPoint = function(){
-        computeControls( this );
         return this.control1;
     };
 
@@ -536,7 +586,6 @@
      * @return Point
      */
     Arc.prototype.getEndControlPoint = function(){
-        computeControls( this );
         return this.control2;
     };
 
@@ -736,6 +785,11 @@
         this.style = param.style ? param.style : new stateAutomaton.graphic.Style();
         param.style = this.style;
         this.arc = new stateAutomaton.graphic.Arc( param );
+
+        $( this.arc ).on( 'change', function(){
+            $( self ).trigger( 'change' );
+        });
+        
         var bez1 = {
             sx: this.arc.getStartPoint().getCoord().x,
             sy: this.arc.getStartPoint().getCoord().y,
@@ -882,7 +936,27 @@
             this.direction = param.direction;
         }
 
-        configureArrow( this );
+        var self = this;
+        $( this ).on( 'start_change', function(){
+            configureArrow( self );
+            $( self ).trigger( 'change' );
+        });
+
+        $( this ).on( 'end_change', function(){
+            configureArrow( self );
+            $( self ).trigger( 'change' );
+        });
+
+        $( this.start ).on( 'change', function(){
+            configureArrow( self );
+            $( self ).trigger( 'change' );
+        });
+
+        $( this.end ).on( 'change', function(){
+            configureArrow( self );
+            $( self ).trigger( 'change' );
+        });
+        configureArrow( self );
     };
 
     var configureArrow = function( self ){
@@ -964,6 +1038,16 @@
         return this.end;
     };
 
+    Arrow.prototype.setStartPoint = function( point ){
+        this.start = point;
+        $( this ).trigger( 'start_change' );
+    };
+
+    Arrow.prototype.setEndPoint = function( point ){
+        this.end = point;
+        $( this ).trigger( 'end_change' );
+    };
+
     /**
      * Retourne la direction des flèches.
      */
@@ -980,7 +1064,6 @@
         if ( typeof context === "undefined" ){
             context = window.stateAutomaton.graphic.defaultContext;
         }
-        configureArrow( this );
         this.line.draw( context );
         if ( this.direction == 'right' || this.direction == 'both' ){
             this.endHeadArrow.draw( context );
@@ -1045,6 +1128,7 @@
 	 */
 	Circle.prototype.setCenter = function( center ){
 		this.center = center;
+		$( this ).trigger( 'change' );
 	};
 
 	/**
@@ -1057,6 +1141,7 @@
 		if ( this.pointRadius !== null ){
 			this.setPointRadius( this.pointRadius );
 		}
+		$( this ).trigger( 'change' );
 	};
 
 	/**
@@ -1065,6 +1150,7 @@
 	 */
 	Circle.prototype.setRadius = function( radius ){
 		this.radius = radius;
+		$( this ).trigger( 'change' );
 	};
 
 	/**
@@ -1074,6 +1160,7 @@
 	Circle.prototype.setPointRadius = function( radius ){
 		this.pointRadius = radius;
 		this.radius = this.center.distance( radius );
+		$( this ).trigger( 'change' );
 	};
 
 	/**
@@ -1127,10 +1214,8 @@
         }
         this.canvas = canvas;
         this.context = stateAutomaton.graphic.getContext( canvas, antialiasing );
-        this.elementsCount = 0;
-        this.elements = {};
+        this.elements = [];
     };
-
 
     Environment.prototype.getWidth = function(){
         return this.canvas.width;
@@ -1140,22 +1225,22 @@
         return this.canvas.width;
     };
 
-    Environment.prototype.addElement = function( name, element ){
-        if ( typeof this.elements[ name ] === "undefined" ){
-            this.elements[ name ] = element;
-            ++this.elementsCount;
+    Environment.prototype.addElement = function( element ){
+        if ( typeof element === "undefined" ){
+            throw "Impossible d'ajouter undefined";
         }
+        this.elements.push( element );
     };
 
     Environment.prototype.addElements = function( elements ){
+        if ( typeof elements === "undefined" ){
+            throw "Impossible d'ajouter undefined";
+        }
         for ( var i in elements ){
-            this.addElement( i, elements[ i ] );
+            this.addElement( elements[ i ] );
         }
     };
 
-    Environment.prototype.getElement = function( name ){
-        return this.elements[ name ];
-    };
 
     Environment.prototype.getContext = function(){
         return this.context;
@@ -1215,6 +1300,11 @@
     var Text = function( param ) {
         this.text = param.text;
         this.point = param.point;
+        var self = this;
+        $( this.point ).on( 'change', function(){
+            $( self ).trigger( 'change' );
+        });
+
         this.style = param.style ? param.style : new stateAutomaton.graphic.Style();
          // todo:  les param non explicit seront implémentés ultérieurement
         this.font = this.style.getFont();
@@ -1244,6 +1334,11 @@
      */
     Text.prototype.getPoint = function(){
         return this.point;
+    };
+
+    Text.prototype.setPoint = function( point ){
+        this.point = point;
+        $( this ).trigger( 'change' );
     };
 
     /**

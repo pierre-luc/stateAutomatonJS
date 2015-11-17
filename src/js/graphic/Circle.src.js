@@ -51,6 +51,7 @@
 	 */
 	Circle.prototype.setCenter = function( center ){
 		this.center = center;
+		$( this ).trigger( 'change' );
 	};
 
 	/**
@@ -63,6 +64,7 @@
 		if ( this.pointRadius !== null ){
 			this.setPointRadius( this.pointRadius );
 		}
+		$( this ).trigger( 'change' );
 	};
 
 	/**
@@ -71,6 +73,7 @@
 	 */
 	Circle.prototype.setRadius = function( radius ){
 		this.radius = radius;
+		$( this ).trigger( 'change' );
 	};
 
 	/**
@@ -80,6 +83,7 @@
 	Circle.prototype.setPointRadius = function( radius ){
 		this.pointRadius = radius;
 		this.radius = this.center.distance( radius );
+		$( this ).trigger( 'change' );
 	};
 
 	/**

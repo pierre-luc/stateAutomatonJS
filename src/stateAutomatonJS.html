@@ -15,10 +15,12 @@
     <canvas id="graphic" width="500" height="400">Votre navigateur ne gère pas les canvas</canvas>
     <h3>Sans anti-aliasing</h3>
     <canvas id="graphic2" width="500" height="400">Votre navigateur ne gère pas les canvas</canvas>
+    <script type="text/javascript" src="../dist/js/jquery.min.js"></script>
     <script type="text/javascript" src="../dist/js/StateAutomaton.js"></script>
     
     <script type="text/javascript">
         var sa = stateAutomaton;
+
         var graphic = document.getElementById('graphic');
         var graphic2 = document.getElementById('graphic2');
 
@@ -26,128 +28,93 @@
         var env2 = sa.graphic.createEnvironment( graphic2, false );
 
         var k = 1;
+    
+        var A = new sa.graphic.Point( {
+            coord: {x: 50, y: 50},
+            name: "A"
+        });
+        var B = new sa.graphic.Point( {
+            coord: {x: 80, y: 80},
+            name: "B"
+        });
 
-        function createElements(){
-            var A = new sa.graphic.Point( {
-                coord: {x: 50, y: 50},
-                name: "A"
-            });
-            var B = new sa.graphic.Point( {
-                coord: {x: 80, y: 80},
-                name: "B"
-            });
+        var style = new sa.graphic.Style({
+            color: "red",
+            lineWidth: 5
+        });
 
-            var style = new sa.graphic.Style({
-                color: "red",
-                lineWidth: 5
-            });
+        var arrow = new sa.graphic.Arrow({
+            start: A,
+            end: B,
+            style: style,
+            direction: 'both'
+        });
 
-            var arrow = new sa.graphic.Arrow({
-                start: A,
-                end: B,
-                style: style,
-                direction: 'both'
-            });
+        var circle = new sa.graphic.Circle({
+            center: B,
+            point: A
+        });
 
-
-
-            var circle = new sa.graphic.Circle({
-                center: B,
-                point: A
-            });
-
-
-
-            var text = new sa.graphic.Text({
-                text: "Salut",
-                point: A,
+        var text = new sa.graphic.Text({
+            text: "Salut",
+            point: A,
+            textAlign: 'center',
+            style: new sa.graphic.Style({
+                color: 'blue',
+                fillColor: 'green',
                 textAlign: 'center',
-                style: new sa.graphic.Style({
-                    color: 'blue',
-                    fillColor: 'green',
-                    textAlign: 'center',
-                    baseline: 'middle'
-                })
-            });
+                baseline: 'middle'
+            })
+        });
 
 
-            var intersection = circle.getPoint( k * Math.PI / 5 );
-            intersection.setName( "intersection" );
-            var circle2 = new sa.graphic.Circle({
-                center: intersection,
-                point: A
-            });
-            k += 0.1;
+        var intersection = circle.getPoint( k * Math.PI / 5 );
+        intersection.setName( "intersection" );
+        var circle2 = new sa.graphic.Circle({
+            center: intersection,
+            point: A
+        });
+        k += 0.1;
 
 
-            var E = new sa.graphic.Point({coord:{
-                x: 230, y: 250
-            }});
+        var E = new sa.graphic.Point({coord:{
+            x: 230, y: 250
+        }});
 
-            E = circle2.getPoint( k * Math.PI / 5 );
-            var F = new sa.graphic.Point({coord:{
-                x: 250, y: 300
-            }});
+        E = circle2.getPoint( k * Math.PI / 5 );
+        var F = new sa.graphic.Point({coord:{
+            x: 250, y: 300
+        }});
 
-            var arc = new sa.graphic.ArcArrow({
-                start: E,
-                end: F,
-                height: 100,
-                direction: 'both',
-                style: new sa.graphic.Style({
-                    lineStyle: 'dashed'
-                })
-            });
-            var middleControl = arc.getArc().getMiddleControlPoint();
-            
-            var arrow2 = new sa.graphic.Arrow({
-                start: intersection,
-                end: middleControl,
-                direction: 'both',
-                style: style
-            });
+        var arc = new sa.graphic.ArcArrow({
+            start: E,
+            end: F,
+            height: 100,
+            direction: 'both',
+            style: new sa.graphic.Style({
+                lineStyle: 'dashed'
+            })
+        });
+        var middleControl = arc.getArc().getMiddleControlPoint();
+        
+        var arrow2 = new sa.graphic.Arrow({
+            start: intersection,
+            end: middleControl,
+            direction: 'both',
+            style: style
+        });
 
-
-            return {
-                A: A,
-                B: B,
-                E: E,
-                arrow: arrow,
-                circle: circle,
-                text: text,
-                circle2: circle2,             
-                intersection: intersection,
-                arc: arc,
-                middleControl: middleControl,
-                arrow2: arrow2
-            };
-        }
-        var elements = createElements();
+        var elements = [ arrow, circle, circle2, arc, arrow2 ];
         env.addElements( elements );
-        env.draw();
         env2.addElements( elements );
-        env2.draw();
-
-        function animate( env ){
-
-            var circle = env.getElement( 'circle' );
-            var intersection = circle.getPoint( k * Math.PI / 5 );
-            var circle2 = env.getElement( 'circle2' );{
-                circle2.updateCenter( intersection );
-            }
-            var E = env.getElement( 'E' );
+        
+        setInterval(function(){
+            intersection.setCoord( circle.getPoint( k * Math.PI / 5 ).getCoord() );
             E.setCoord( circle2.getPoint( k * Math.PI / 5 ) .getCoord() );
-
-            var middleControl = env.getElement( 'middleControl' );
-            var arc = env.getElement( 'arc' );
             middleControl.setCoord( arc.getArc().getMiddleControlPoint().getCoord() );          
             k += 0.1;
             env.redraw();
-        }
-
-        setInterval(function(){
-            animate( env );
-            animate( env2 );
+            env2.redraw();
         }, 100);
 
     </script>

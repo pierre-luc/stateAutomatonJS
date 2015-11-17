@@ -57,4 +57,5 @@ gulp.task( 'watch', function() {
   gulp.watch( './src/js/**/*.src.js', [ 'js' ] );
 });
 
-gulp.task( 'default', [ 'watch', 'css', 'js' ] );
+gulp.task( 'build', [ 'css', 'js' ] );
+gulp.task( 'default', [ 'watch', 'build' ] );

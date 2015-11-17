@@ -1,5 +1,8 @@
 # stateAutomatonJS
 
+# Installation
+gulp build
+
 # gulp
 ## Problème d'installation des packages
 J'ai rencontré un problème avec gulp-minify-css, voici comment j'ai résolu le problème.

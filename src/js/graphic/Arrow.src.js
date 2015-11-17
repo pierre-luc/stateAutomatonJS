@@ -35,7 +35,27 @@
             this.direction = param.direction;
         }
 
-        configureArrow( this );
+        var self = this;
+        $( this ).on( 'start_change', function(){
+            configureArrow( self );
+            $( self ).trigger( 'change' );
+        });
+
+        $( this ).on( 'end_change', function(){
+            configureArrow( self );
+            $( self ).trigger( 'change' );
+        });
+
+        $( this.start ).on( 'change', function(){
+            configureArrow( self );
+            $( self ).trigger( 'change' );
+        });
+
+        $( this.end ).on( 'change', function(){
+            configureArrow( self );
+            $( self ).trigger( 'change' );
+        });
+        configureArrow( self );
     };
 
     var configureArrow = function( self ){
@@ -117,6 +137,16 @@
         return this.end;
     };
 
+    Arrow.prototype.setStartPoint = function( point ){
+        this.start = point;
+        $( this ).trigger( 'start_change' );
+    };
+
+    Arrow.prototype.setEndPoint = function( point ){
+        this.end = point;
+        $( this ).trigger( 'end_change' );
+    };
+
     /**
      * Retourne la direction des flèches.
      */
@@ -133,7 +163,6 @@
         if ( typeof context === "undefined" ){
             context = window.stateAutomaton.graphic.defaultContext;
         }
-        configureArrow( this );
         this.line.draw( context );
         if ( this.direction == 'right' || this.direction == 'both' ){
             this.endHeadArrow.draw( context );

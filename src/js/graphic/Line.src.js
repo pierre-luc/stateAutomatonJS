@@ -21,13 +21,31 @@
         this.start = param.start;
         this.end = param.end;
         
-        computeAngle( this );
+        var self = this;
+        $( this ).on( 'start_change', function(){
+            computeAngle( self );
+        });
 
-        this.middle = new stateAutomaton.graphic.Point({
-            coord:{
-                x: ( this.start.getCoord().x + this.end.getCoord().x ) / 2,
-                y: ( this.start.getCoord().y + this.end.getCoord().y ) / 2
-            }
+        $( this ).on( 'end_change', function(){
+            computeAngle( self );
+        });
+
+        $( this.start ).on( 'change', function(){
+           computeAngle( self );
+        });
+
+        $( this.end ).on( 'change', function(){
+           computeAngle( self );
+        });
+        computeAngle( self );
+
+        $( this ).on( 'change', function(){
+            self.middle = new stateAutomaton.graphic.Point({
+                coord:{
+                    x: ( self.start.getCoord().x + self.end.getCoord().x ) / 2,
+                    y: ( self.start.getCoord().y + self.end.getCoord().y ) / 2
+                }
+            });
         });
 
         this.norm = this.start.distance( this.end );
@@ -70,6 +88,18 @@
         return this.end;
     };
 
+    Line.prototype.setStartPoint = function( point ){
+        this.start = point;
+        $( this ).trigger( 'start_change' );
+        $( this ).trigger( 'change' );
+    };
+
+    Line.prototype.setEndPoint = function( point ){
+        this.end = point;
+        $( this ).trigger( 'end_change' );
+        $( this ).trigger( 'change' );
+    };
+
     /**
      * Dessine la ligne entre le point de départ et d'arrivé.
      * @param context:CanvasRenderingContext2D
@@ -92,7 +122,6 @@
      * L'angle est exprimé en Radian et est orienté.
      */
     Line.prototype.getAngle = function(){
-        computeAngle( this );
         return this.angle;
     };
 
