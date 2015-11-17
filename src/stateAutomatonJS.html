@@ -11,6 +11,7 @@
     </style>
 </head>
 <body>
+    <h4><a href="https://github.com/pierre-luc/stateAutomatonJS">https://github.com/pierre-luc/stateAutomatonJS</a></h4>
     <h3>Avec anti-aliasing</h3>
     <canvas id="graphic" width="500" height="400">Votre navigateur ne gère pas les canvas</canvas>
     <h3>Sans anti-aliasing</h3>
@@ -83,7 +84,7 @@
 
         E = circle2.getPoint( k * Math.PI / 5 );
         var F = new sa.graphic.Point({coord:{
-            x: 250, y: 300
+            x: 150, y: 300
         }});
 
         var arc = new sa.graphic.ArcArrow({
@@ -104,18 +105,48 @@
             style: style
         });
 
-        var elements = [ arrow, circle, circle2, arc, arrow2 ];
+        var p = new sa.graphic.Point({
+            coord: {x: 300, y: 200}, name: "plop"
+        });
+
+        var blue3px = new sa.graphic.Style({
+            lineStyle: 'normal',
+            color: 'blue',
+            lineWidth: 3
+        });
+
+        var c = new sa.graphic.Circle({
+            center: p,
+            radius: 50,
+            style: blue3px
+        });
+        var p1 = c.getPoint( -k * Math.PI / 16 );
+        var p2 = c.getPoint( k * Math.PI / 16 );
+        var b = new sa.graphic.ArcArrow({
+            start: p1,
+            end: p2,
+            height: 150,
+            direction: 'both',
+            style: blue3px
+        });
+
+        var elements = [ arrow, circle, circle2, arc, arrow2, c, b ];
         env.addElements( elements );
         env2.addElements( elements );
-        
+        env.redraw();        
+        //*
         setInterval(function(){
+            blue3px.setColor( 'hsl(' + 360 * Math.random() + ', ' + 50 * Math.random() + '%, 50%)' );
             intersection.setCoord( circle.getPoint( k * Math.PI / 5 ).getCoord() );
             E.setCoord( circle2.getPoint( k * Math.PI / 5 ) .getCoord() );
-            middleControl.setCoord( arc.getArc().getMiddleControlPoint().getCoord() );          
+            middleControl.setCoord( arc.getArc().getMiddleControlPoint().getCoord() );
+            p1.setCoord( c.getPoint( k * 10 *  Math.PI / 16 ) );
+            p2.setCoord( c.getPoint( k * 10 *  Math.PI / 16 - 4 * Math.PI / 16 ) );
             k += 0.1;
             env.redraw();
             env2.redraw();
         }, 100);
+        //*/
 
     </script>
 </body>
