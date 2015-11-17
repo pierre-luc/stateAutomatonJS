@@ -21,16 +21,7 @@
         this.start = param.start;
         this.end = param.end;
         
-        if ( this.start.getCoord().x == this.end.getCoord().x ){
-            this.angle = Math.PI / 2;
-        } else if ( this.start.getCoord().y == this.end.getCoord().y ){
-            this.angle = 0;
-        } else {
-            this.angle = Math.atan( 
-                ( this.end.getCoord().y - this.start.getCoord().y ) / 
-                ( this.end.getCoord().x - this.start.getCoord().x )
-            );
-        }
+        computeAngle( this );
 
         this.middle = new stateAutomaton.graphic.Point({
             coord:{
@@ -41,6 +32,19 @@
 
         this.norm = this.start.distance( this.end );
         this.style = param.style ? param.style : new stateAutomaton.graphic.Style();
+    };
+
+    var computeAngle = function( self ){
+        if ( self.start.getCoord().x == self.end.getCoord().x ){
+            self.angle = Math.PI / 2;
+        } else if ( self.start.getCoord().y == self.end.getCoord().y ){
+            self.angle = 0;
+        } else {
+            self.angle = Math.atan( 
+                ( self.end.getCoord().y - self.start.getCoord().y ) / 
+                ( self.end.getCoord().x - self.start.getCoord().x )
+            );
+        }
     };
 
     Line.prototype.getStyle = function(){
@@ -88,6 +92,7 @@
      * L'angle est exprimé en Radian et est orienté.
      */
     Line.prototype.getAngle = function(){
+        computeAngle( this );
         return this.angle;
     };
 

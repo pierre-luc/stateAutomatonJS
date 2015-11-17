@@ -57,24 +57,11 @@
         }
         var context = stateAutomaton.graphic.getContext( canvas );
  
-        // save the canvas content as imageURL
-        var data = canvas.toDataURL();
-        // resize the canvas
         context.save();
         this.width += this.cell.width;
         ++this.col;
         ++this.colExtendCount;
         canvas.width = this.width;
-
-       
-        // scale and redraw the canvas content
-        var img = new Image();
-        var self = this;
-        img.onload = function(){
-            context.drawImage(img, 0, 0, img.width, img.height, 0, 0, canvas.width - self.colExtendCount * self.cell.width, canvas.height - self.rowExtendCount * self.cell.height );
-            context.restore();
-        }
-        img.src = data;
     };
 
 
@@ -84,24 +71,11 @@
         }
         var context = stateAutomaton.graphic.getContext( canvas );
  
-        // save the canvas content as imageURL
-        var data = canvas.toDataURL();
-        // resize the canvas
         context.save();
         this.height += this.cell.height;
         ++this.row;
         ++this.rowExtendCount;
         canvas.height = this.height;
-
-       
-        // scale and redraw the canvas content
-        var img = new Image();
-        var self = this;
-        img.onload = function(){
-            context.drawImage(img, 0, 0, img.width, img.height, 0, 0, canvas.width - self.colExtendCount * self.cell.width, canvas.height - self.rowExtendCount * self.cell.height );
-            context.restore();
-        }
-        img.src = data;
     };
 
     Grid.prototype.getCellAt = function( col, row ){
@@ -161,7 +135,7 @@
         context.lineTo( cell.bottom.left.getCoord().x, cell.bottom.left.getCoord().y );
         context.lineTo( cell.top.left.getCoord().x, cell.top.left.getCoord().y );
         context.stroke();
-    }
+    };
 
     window.stateAutomaton.pattern.Grid = Grid;
  })(window);

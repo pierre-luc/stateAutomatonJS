@@ -49,6 +49,13 @@
              */
             setDefaultContext: function( context ){
                 this.defaultContext = context;
+            },
+            /**
+             * @param canvas
+             * @param antialising
+             */
+            createEnvironment: function( canvas, antialiasing ){
+                // résolu dans le fichier graphic/Environment.src.js
             }
         }
     };

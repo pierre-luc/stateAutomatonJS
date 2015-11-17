@@ -35,40 +35,44 @@
             this.direction = param.direction;
         }
 
+        configureArrow( this );
+    };
+
+    var configureArrow = function( self ){
         var dxs = 0,
             dys = 0,
             dxe = 0,
             dye = 0,
             angle = new stateAutomaton.graphic.Line({
-                start: this.start,
-                end: this.end
+                start: self.start,
+                end: self.end
             }).getAngle();
             
 
 
         var S = new stateAutomaton.graphic.Point({
             coord:{
-                x: this.start.getCoord().x + dxs,
-                y: this.start.getCoord().y + dys
+                x: self.start.getCoord().x + dxs,
+                y: self.start.getCoord().y + dys
             }
         });
         var E = new stateAutomaton.graphic.Point({
             coord:{
-                x: this.end.getCoord().x + dxe,
-                y: this.end.getCoord().y + dye
+                x: self.end.getCoord().x + dxe,
+                y: self.end.getCoord().y + dye
             }
         });
 
-        this.line = new stateAutomaton.graphic.Line({
+        self.line = new stateAutomaton.graphic.Line({
             start: S,
             end: E,
-            style: this.style
+            style: self.style
         });
 
 
         var angleStart = angle;
         var angleEnd = angle + Math.PI;
-        var v = this.line.getVector();
+        var v = self.line.getVector();
 
         if ( v.x > 0 && v.y < 0 ){ // haut droite
             angleStart = angle + Math.PI;
@@ -80,23 +84,21 @@
         }
 
         
-        this.endHeadArrow = new stateAutomaton.graphic.HeadArrow({
-            origin: this.start,
+        self.endHeadArrow = new stateAutomaton.graphic.HeadArrow({
+            origin: self.start,
             angle:  angleStart,
             height: 5,
             width: 5,
-            style: this.style
+            style: self.style
         });
     
-        this.startHeadArrow = new stateAutomaton.graphic.HeadArrow({
-            origin: this.end,
+        self.startHeadArrow = new stateAutomaton.graphic.HeadArrow({
+            origin: self.end,
             angle: angleEnd,
             height: 5,
             width: 5,
-            style: this.style
-        });            
-    
-
+            style: self.style
+        }); 
     };
 
     /**
@@ -131,6 +133,7 @@
         if ( typeof context === "undefined" ){
             context = window.stateAutomaton.graphic.defaultContext;
         }
+        configureArrow( this );
         this.line.draw( context );
         if ( this.direction == 'right' || this.direction == 'both' ){
             this.endHeadArrow.draw( context );

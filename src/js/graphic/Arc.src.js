@@ -30,29 +30,34 @@
         this.end = param.end;
         this.height = param.height;
         this.style = param.style ? param.style : new stateAutomaton.graphic.Style();
-        var baseArc = new stateAutomaton.graphic.Line({
-            start: this.start,
-            end: this.end
+
+        computeControls( this );
+    };
+
+    var computeControls = function( self ){
+        var baseself = new stateAutomaton.graphic.Line({
+            start: self.start,
+            end: self.end
         });
 
-        this.control1 = new stateAutomaton.graphic.Point({
+        self.control1 = new stateAutomaton.graphic.Point({
             coord:{
-                x: this.start.getCoord().x + this.height * Math.cos( baseArc.getAngle() + Math.PI / 2 + Math.PI / 11),
-                y: this.start.getCoord().y + this.height * Math.sin( baseArc.getAngle() + Math.PI / 2 + Math.PI / 11)
+                x: self.start.getCoord().x + self.height * Math.cos( baseself.getAngle() + Math.PI / 2 + Math.PI / 11),
+                y: self.start.getCoord().y + self.height * Math.sin( baseself.getAngle() + Math.PI / 2 + Math.PI / 11)
             }
         });
 
-        this.control2 = new stateAutomaton.graphic.Point({
+        self.control2 = new stateAutomaton.graphic.Point({
             coord:{
-                x: this.end.getCoord().x + this.height * Math.cos( baseArc.getAngle() + Math.PI / 2 - Math.PI / 11),
-                y: this.end.getCoord().y + this.height * Math.sin( baseArc.getAngle() + Math.PI / 2 - Math.PI / 11)
+                x: self.end.getCoord().x + self.height * Math.cos( baseself.getAngle() + Math.PI / 2 - Math.PI / 11),
+                y: self.end.getCoord().y + self.height * Math.sin( baseself.getAngle() + Math.PI / 2 - Math.PI / 11)
             }
         });
 
-        this.middleControl = new stateAutomaton.graphic.Point({
+        self.middleControl = new stateAutomaton.graphic.Point({
             coord: {
-                x: ( this.control1.getCoord().x + this.control2.getCoord().x ) / 2,
-                y: ( this.control1.getCoord().y + this.control2.getCoord().y ) / 2
+                x: ( self.control1.getCoord().x + self.control2.getCoord().x ) / 2,
+                y: ( self.control1.getCoord().y + self.control2.getCoord().y ) / 2
             }
         });
     };
@@ -65,7 +70,13 @@
         return this.height;
     };
 
+    Arc.prototype.setHeight = function( height ){
+        this.height = height;
+        computeControls( this );
+    };
+
     Arc.prototype.getMiddleControlPoint = function(){
+        computeControls( this );
         return this.middleControl;
     };
 
@@ -74,6 +85,7 @@
      * @return Point
      */
     Arc.prototype.getStartControlPoint = function(){
+        computeControls( this );
         return this.control1;
     };
 
@@ -82,6 +94,7 @@
      * @return Point
      */
     Arc.prototype.getEndControlPoint = function(){
+        computeControls( this );
         return this.control2;
     };
 

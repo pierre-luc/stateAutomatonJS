@@ -21,15 +21,13 @@
         var sa = stateAutomaton;
         var graphic = document.getElementById('graphic');
         var graphic2 = document.getElementById('graphic2');
-        var ctx = sa.graphic.getContext( graphic );
-        var ctx2 = sa.graphic.getContext( graphic2, false );
+
+        var env = sa.graphic.createEnvironment( graphic );
+        var env2 = sa.graphic.createEnvironment( graphic2, false );
 
         var k = 1;
-        setInterval(function(){
 
-            ctx.save();
-            ctx.clearRect(0,0,500,400);
-
+        function createElements(){
             var A = new sa.graphic.Point( {
                 coord: {x: 50, y: 50},
                 name: "A"
@@ -38,26 +36,26 @@
                 coord: {x: 80, y: 80},
                 name: "B"
             });
-            A.draw();
+
             var style = new sa.graphic.Style({
                 color: "red",
                 lineWidth: 5
             });
-            
+
             var arrow = new sa.graphic.Arrow({
                 start: A,
                 end: B,
                 style: style,
                 direction: 'both'
             });
-            arrow.draw();
-            
+
+
 
             var circle = new sa.graphic.Circle({
                 center: B,
                 point: A
             });
-            circle.draw();
+
 
 
             var text = new sa.graphic.Text({
@@ -71,26 +69,25 @@
                     baseline: 'middle'
                 })
             });
-            text.draw();
-            
+
+
             var intersection = circle.getPoint( k * Math.PI / 5 );
             var circle2 = new sa.graphic.Circle({
                 center: intersection,
                 point: A
             });
-            circle2.draw();             
-            intersection.draw();
             k += 0.1;
 
-            
+
             var E = new sa.graphic.Point({coord:{
                 x: 230, y: 250
             }});
+
             E = circle2.getPoint( k * Math.PI / 5 );
             var F = new sa.graphic.Point({coord:{
                 x: 250, y: 300
             }});
-        
+
             var arc = new sa.graphic.ArcArrow({
                 start: E,
                 end: F,
@@ -100,32 +97,55 @@
                     lineStyle: 'dashed'
                 })
             });
-            arc.draw();
             var middleControl = arc.getArc().getMiddleControlPoint();
-            middleControl.draw();
-
+            
             var arrow2 = new sa.graphic.Arrow({
                 start: intersection,
-                end: arc.getArc().getMiddleControlPoint(),
+                end: middleControl,
                 direction: 'both',
                 style: style
             });
-            arrow2.draw();
-            ctx.restore();
 
-            ctx2.clearRect(0, 0, 500, 400);
-            ctx2.save();
-            A.draw( ctx2 );
-            arrow.draw( ctx2 );
 
-            circle.draw(ctx2);
-            circle2.draw(ctx2);
-            intersection.draw(ctx2);
-            middleControl.draw(ctx2);
-            arrow2.draw(ctx2);
-            arc.draw(ctx2);
-            ctx2.restore();
+            return {
+                A: A,
+                B: B,
+                E: E,
+                arrow: arrow,
+                circle: circle,
+                text: text,
+                circle2: circle2,             
+                intersection: intersection,
+                arc: arc,
+                middleControl: middleControl,
+                arrow2: arrow2
+            };
+        }
+        var elements = createElements();
+        env.addElements( elements );
+        env.draw();
+        env2.addElements( elements );
+        env2.draw();
 
+        function animate( env ){
+            var circle = env.getElement( 'circle' );
+            var intersection = circle.getPoint( k * Math.PI / 5 );
+            var circle2 = env.getElement( 'circle2' );{
+                circle2.setCenter( intersection );
+            }
+            var E = env.getElement( 'E' );
+            E.setCoord( circle2.getPoint( k * Math.PI / 5 ) .getCoord() );
+
+            var middleControl = env.getElement( 'middleControl' );
+            var arc = env.getElement( 'arc' );
+            middleControl.setCoord( arc.getArc().getMiddleControlPoint().getCoord() );          
+            k += 0.1;
+            env.redraw();
+        }
+
+        setInterval(function(){
+            animate( env );
+            animate( env2 );
         }, 100);
 
     </script>

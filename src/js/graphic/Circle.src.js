@@ -22,9 +22,10 @@
 		this.center = param.center;
 		var radius = param.radius;
 		if ( typeof param.radius !== "number" ){
-			radius = this.center.distance( param.point );
+			this.setRadius( param.point );
+		} else {
+			this.setRadius( param.radius );
 		}
-		this.radius = radius;
 	};
 
 	/**
@@ -40,6 +41,26 @@
 	 */
 	Circle.prototype.getRadius = function() {
 		return this.radius;
+	};
+
+	/**
+	 * Définit un nouveau centre pour le cercle.
+	 * @param center: Point
+	 *	Centre du cercle.
+	 */
+	Circle.prototype.setCenter = function( center ){
+		this.center = center;
+	};
+
+	/**
+	 * Définit un nouveau rayon pour le cercle.
+	 * @param radius:number || radius:Point
+	 */
+	Circle.prototype.setRadius = function( radius ){
+		if ( typeof radius !== "number" ){
+			radius = this.center.distance( radius );
+		}
+		this.radius = radius;
 	};
 
 	/**
