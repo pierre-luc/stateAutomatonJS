@@ -23,7 +23,8 @@
         this.col = param.col;
         this.width = param.width;
         this.height = param.height;
-
+        this.colExtendCount = 0;
+        this.rowExtendCount = 0;
         this.cell = {
             width: this.width / this.col,
             height: this.height / this.row
@@ -48,6 +49,59 @@
 
     Grid.prototype.getWidth = function(){
         return this.width;
+    };
+
+    Grid.prototype.extendCol = function( canvas ){
+        if ( typeof canvas === "undefined" ){
+            throw "Un canvas doit être passé en paramètre";
+        }
+        var context = stateAutomaton.graphic.getContext( canvas );
+ 
+        // save the canvas content as imageURL
+        var data = canvas.toDataURL();
+        // resize the canvas
+        context.save();
+        this.width += this.cell.width;
+        ++this.col;
+        ++this.colExtendCount;
+        canvas.width = this.width;
+
+       
+        // scale and redraw the canvas content
+        var img = new Image();
+        var self = this;
+        img.onload = function(){
+            context.drawImage(img, 0, 0, img.width, img.height, 0, 0, canvas.width - self.colExtendCount * self.cell.width, canvas.height - self.rowExtendCount * self.cell.height );
+            context.restore();
+        }
+        img.src = data;
+    };
+
+
+    Grid.prototype.extendRow = function( canvas ){
+        if ( typeof canvas === "undefined" ){
+            throw "Un canvas doit être passé en paramètre";
+        }
+        var context = stateAutomaton.graphic.getContext( canvas );
+ 
+        // save the canvas content as imageURL
+        var data = canvas.toDataURL();
+        // resize the canvas
+        context.save();
+        this.height += this.cell.height;
+        ++this.row;
+        ++this.rowExtendCount;
+        canvas.height = this.height;
+
+       
+        // scale and redraw the canvas content
+        var img = new Image();
+        var self = this;
+        img.onload = function(){
+            context.drawImage(img, 0, 0, img.width, img.height, 0, 0, canvas.width - self.colExtendCount * self.cell.width, canvas.height - self.rowExtendCount * self.cell.height );
+            context.restore();
+        }
+        img.src = data;
     };
 
     Grid.prototype.getCellAt = function( col, row ){

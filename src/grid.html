@@ -45,10 +45,42 @@
                     new sa.graphic.ArcArrow({
                         start: A,
                         end: circle.getCenter(),
-                        height: 20 + Math.round( Math.random() * 90 )
+                        height: 20 + Math.round( Math.random() * 90 ),
+                        style: new stateAutomaton.graphic.Style({
+                            lineStyle: 'dashed'
+                        })
                     }).draw();
                 }
 
+            }
+        }
+        
+        grid.extendCol( graphic );
+        grid.extendCol( graphic );
+        grid.extendRow( graphic );
+        matrix = grid.getMatrix();
+        
+        for( var col = 0; col < grid.getCol(); ++col ){
+            for( var row = 0; row < grid.getRow(); ++row ){
+                var cell = matrix[ col ][ row ];
+                var center = cell.middle;
+                var circle = new sa.graphic.Circle({
+                    center: center,
+                    radius: Math.min( grid.getSizeCell().width, grid.getSizeCell().height ) / 2 - 10
+                });
+                if ( Math.ceil( Math.random() * 2) == 1 ){
+                    circle.draw();
+                    var A = matrix[ Math.round( Math.random() * ( grid.getCol() - 1 ) ) ][ Math.round( Math.random() * ( grid.getRow() - 1 ) ) ].middle;
+
+
+                    new sa.graphic.ArcArrow({
+                        start: A,
+                        end: circle.getCenter(),
+                        height: 20 + Math.round( Math.random() * 90 )
+                    }).draw();
+                }
+                //center.draw();
+                
             }
         }
 
