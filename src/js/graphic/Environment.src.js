@@ -19,6 +19,10 @@
         if ( typeof canvas === "undefined" ){
             throw "Un canvas est nécessaire pour construire un environnement graphique.";
         }
+        if ( typeof antialiasing === "undefined" ){
+            antialiasing = true;
+        }
+        this.antialiasing = antialiasing;
         this.canvas = canvas;
         this.context = stateAutomaton.graphic.getContext( canvas, antialiasing );
         this.elements = [];
@@ -53,14 +57,25 @@
         return this.context;
     };
 
+    var clear = function( self ){
+        if ( !self.antialiasing ){
+            self.context.translate( -0.5, -0.5 );
+        }
+        self.context.clearRect( 0, 0, self.canvas.width, self.canvas.height );
+        if ( !self.antialiasing ){
+            self.context.translate( 0.5, 0.5 );
+        }
+    };
+
     Environment.prototype.clear = function(){
         this.elements = [];
-        this.context.clearRect( 0, 0, this.canvas.width, this.canvas.height );
+        clear( this );
     };
 
     Environment.prototype.redraw = function(){
         this.context.save();
-        this.context.clearRect( 0, 0, this.canvas.width, this.canvas.height );
+        clear( this );
+
         this.draw();
         this.context.restore();
     };
