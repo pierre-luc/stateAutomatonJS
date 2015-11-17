@@ -61,18 +61,22 @@
             start: self.start,
             end: self.end
         });
+        var height = self.height;
+        if ( self.end.getCoord().x - self.start.getCoord().x < 0 ){
+            height = - height;
+        }        
 
         self.control1 = new stateAutomaton.graphic.Point({
             coord:{
-                x: self.start.getCoord().x + self.height * Math.cos( baseself.getAngle() + Math.PI / 2 + Math.PI / 11),
-                y: self.start.getCoord().y + self.height * Math.sin( baseself.getAngle() + Math.PI / 2 + Math.PI / 11)
+                x: self.start.getCoord().x + height * Math.cos( baseself.getAngle() + Math.PI / 2 + Math.PI / 11),
+                y: self.start.getCoord().y + height * Math.sin( baseself.getAngle() + Math.PI / 2 + Math.PI / 11)
             }
         });
 
         self.control2 = new stateAutomaton.graphic.Point({
             coord:{
-                x: self.end.getCoord().x + self.height * Math.cos( baseself.getAngle() + Math.PI / 2 - Math.PI / 11),
-                y: self.end.getCoord().y + self.height * Math.sin( baseself.getAngle() + Math.PI / 2 - Math.PI / 11)
+                x: self.end.getCoord().x + height * Math.cos( baseself.getAngle() + Math.PI / 2 - Math.PI / 11),
+                y: self.end.getCoord().y + height * Math.sin( baseself.getAngle() + Math.PI / 2 - Math.PI / 11)
             }
         });
 

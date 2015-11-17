@@ -29,6 +29,7 @@
         this.angle = param.angle;
         this.style = param.style ? param.style : new stateAutomaton.graphic.Style();
         this.style.setFillColor( this.style.getColor() );
+        
         this.height = param.height + this.style.getLineWidth(); 
         this.width = param.width + this.style.getLineWidth();
     };
