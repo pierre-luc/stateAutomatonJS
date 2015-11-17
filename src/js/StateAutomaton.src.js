@@ -1,5 +1,5 @@
 /*!
- * StateAutomatonJS - v0.0.1
+ * StateAutomatonJS - v0.5.1
  * @author Pierre-Luc BLOT
  * @created 13/11/15
  */
