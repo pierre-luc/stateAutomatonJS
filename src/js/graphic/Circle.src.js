@@ -5,6 +5,7 @@
  *
  * @requires ../StateAutomaton.src.js
  * @requires Point.src.js
+ * @requires Style.src.js
  */
 
  (function(window){
@@ -17,6 +18,7 @@
 	 * @constructor
 	 * @param param.center:Point
 	 * @param param.radius:number || param.point:Point
+	 * @param param.style
 	 */
 	var Circle = function( param ) {
 		this.center = param.center;
@@ -27,6 +29,7 @@
 		} else {
 			this.setRadius( param.radius );
 		}
+		this.style = param.style ? param.style : new stateAutomaton.graphic.Style();
 	};
 
 	/**
@@ -96,8 +99,10 @@
 			context = window.stateAutomaton.graphic.defaultContext;
 		}
 		context.beginPath();
+		this.style.apply( context );
 		context.arc( this.center.getCoord().x, this.center.getCoord().y, this.radius, 0, Math.PI * 2, true );
 		context.stroke();
+		this.style.restore( context );
 	};
 
 	/**
