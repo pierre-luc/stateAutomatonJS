@@ -108,7 +108,8 @@
                 (col * this.cell.width + (col + 1) * this.cell.width) / 2,
                 (row * this.cell.height + (row + 1) * this.cell.height) / 2,
                 "(" + col + ", " + row + ")"
-            )
+            ),
+            size: this.cell
         };
         return cell;
     };

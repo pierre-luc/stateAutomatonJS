@@ -4,6 +4,7 @@
  * @created 17/11/15
  *
  * @requires ../StateAutomaton.src.js
+ * @requires ../pattern/Grid.src.js
  */
 
  (function(window){
@@ -22,6 +23,7 @@
         if ( typeof antialiasing === "undefined" ){
             antialiasing = true;
         }
+        this.grid = null;
         this.antialiasing = antialiasing;
         this.canvas = canvas;
         this.context = stateAutomaton.graphic.getContext( canvas, antialiasing );
@@ -64,6 +66,40 @@
         self.context.clearRect( 0, 0, self.canvas.width, self.canvas.height );
         if ( !self.antialiasing ){
             self.context.translate( 0.5, 0.5 );
+        }
+    };
+
+    Environment.prototype.makeGrid = function( param ){
+        this.grid = new stateAutomaton.pattern.Grid({
+            col: param.col,
+            row: param.row,
+            height: this.canvas.height,
+            width: this.canvas.width
+        });
+    };
+
+    Environment.prototype.getGrid = function(){
+        return this.grid;
+    };
+
+    Environment.prototype.addState = function( state ){
+        if ( typeof this.grid === null ){
+            throw "L'environnement ne possède aucune grille.";
+        }
+        var pos = state.getPosition();
+        var matrix = this.grid.getMatrix();
+        var cell = matrix[ pos.col ][ pos.row ];
+        var center = cell.middle;
+        state.define({
+            center: center,
+            size: Math.min( cell.size.width / 4, cell.size.height / 4 )
+        });
+        this.addElement( state );
+    };
+
+    Environment.prototype.addStates = function( states ){
+        for ( var i = 0; i < states.length; ++i ){
+            this.addState( states[ i ] );
         }
     };
 

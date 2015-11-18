@@ -5,6 +5,7 @@
  */
 (function( window ){
     var stateAutomaton = {
+        automaton: {},
         pattern: {},
         graphic: {
             defaultContext: null,

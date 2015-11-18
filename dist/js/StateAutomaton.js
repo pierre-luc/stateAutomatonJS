@@ -5,6 +5,7 @@
  */
 (function( window ){
     var stateAutomaton = {
+        automaton: {},
         pattern: {},
         graphic: {
             defaultContext: null,
@@ -61,82 +62,6 @@
     if ( typeof window.stateAutomaton === "undefined" ){
         window.stateAutomaton = stateAutomaton;
     }
-})(window);
-/**
- * Classe Point
- * @author Pierre-Luc BLOT
- * @created 13/11/15
- *
- * @requires ../StateAutomaton.src.js
- */
-(function(window) {
-    'use strict';
-    
-    /**
-     * @constructor
-     * @param param.coord.x
-     * @param param.coord.y
-     * @param param.name;
-     */
-    var Point = function( param ){
-        this.x = param.coord.x;
-        this.y = param.coord.y;
-        this.name = param.name;
-    };
-    /**
-     * Retourne les coordonnées du point.
-     * @return {x, y}
-     */
-    Point.prototype.getCoord = function(){
-        return {
-            x: this.x,
-            y: this.y
-        };
-    };
-    /**
-     * Définit les coordonées du point.
-     * @param coord.x
-     * @param coord.y
-     */
-    Point.prototype.setCoord = function( coord ){
-        this.x = coord.x;
-        this.y = coord.y;
-        $( this ).trigger( 'change' );
-    };
-
-    Point.prototype.setName = function( name ){
-        this.name = name;
-        $( this ).trigger( 'change' );
-    };
-    
-    /**
-     * Dessine le point dans le context2D.
-     * @param context:CanvasRenderingContext2D
-     *  Si context n'est pas pas définit, le context par défaut est chargé.
-     */
-    Point.prototype.draw = function( context ){
-        if ( typeof context === "undefined" ){
-            context = window.stateAutomaton.graphic.defaultContext;
-        }
-        context.beginPath();
-        context.moveTo( this.x - 5, this.y );
-        context.lineTo( this.x + 5, this.y );
-        context.moveTo( this.x, this.y - 5 );
-        context.lineTo( this.x, this.y + 5 );
-        context.lineWidth = 1;
-        context.stroke();
-    };
-    /**
-     * Retourne la distance avec le point passé en argument.
-     * @param point
-     */
-    Point.prototype.distance = function( point ){
-        return Math.sqrt( 
-            ( this.x - point.getCoord().x ) * ( this.x - point.getCoord().x ) +
-            ( this.y - point.getCoord().y ) * ( this.y - point.getCoord().y )
-        );
-    };
-    window.stateAutomaton.graphic.Point = Point;
 })(window);
 /**
  * Classe Style
@@ -326,6 +251,524 @@
     window.stateAutomaton.graphic.Style = Style;
  })(window);
 /**
+ * Classe Text
+ * @author Pierre-Luc BLOT
+ * @created 16/11/15
+ *
+ * @requires ../StateAutomaton.src.js
+ * @requires Style.src.js
+ */
+
+ (function(window){
+    'use strict';
+
+    /**
+     * Construit un Texte à partir d'un point de départ.
+     * @constructor
+     * @param param.start: Point
+     *  Point de départ du texte
+     * @param param.text: string
+     *  Texte à afficher
+     * @param param.style: Style
+     *  Style du tracé.
+     */
+    var Text = function( param ) {
+        this.text = param.text;
+        this.point = param.point;
+        var self = this;
+        $( this.point ).on( 'change', function(){
+            $( self ).trigger( 'change' );
+        });
+
+        this.style = param.style ? param.style : new stateAutomaton.graphic.Style();
+         // todo:  les param non explicit seront implémentés ultérieurement
+        this.font = this.style.getFont();
+        this.textAlign = this.style.getTextAlign();
+        this.textBaseline = this.style.getBaseline();
+        this.fillColor = this.style.getFillColor();
+    };
+
+    /** 
+     * Retourne le style de la ligne.
+     * @return Style
+     */
+    Text.prototype.getStyle = function(){
+        return this.style;
+    };
+
+    /**
+     * Retourne le texte à afficher.
+     * @return string
+     */
+    Text.prototype.getText = function(){
+        return this.text;
+    };
+
+    /**
+     * Retourne le point où le texte sera affiché.
+     */
+    Text.prototype.getPoint = function(){
+        return this.point;
+    };
+
+    Text.prototype.setPoint = function( point ){
+        this.point = point;
+        $( this ).trigger( 'change' );
+    };
+
+    /**
+     * @return textPxLength: longueur du texte dessiné en pixel.
+     */
+    Text.prototype.getTextPxLength = function( context ){
+        if ( typeof context == "undefined" ){
+            throw "Le context du canvas doit être définit.";
+        }
+        return context.measureText( this.text );
+    };
+
+    /**
+     * Dessine le cercle dans le contexte2D.
+     * @param context:CanvasRenderingContext2D
+     *  Si context n'est pas pas définit, le context par défaut est chargé.
+     */
+    Text.prototype.draw = function( context ){
+        if ( typeof context === "undefined" ){
+            context = window.stateAutomaton.graphic.defaultContext;
+        }
+        context.beginPath();        
+        this.style.apply( context );
+        context.fillText( this.text, this.point.getCoord().x, this.point.getCoord().y );
+        context.stroke();
+        this.style.restore( context );
+    };
+
+    window.stateAutomaton.graphic.Text = Text;
+ })(window);
+/**
+ * Classe Point
+ * @author Pierre-Luc BLOT
+ * @created 13/11/15
+ *
+ * @requires ../StateAutomaton.src.js
+ */
+(function(window) {
+    'use strict';
+    
+    /**
+     * @constructor
+     * @param param.coord.x
+     * @param param.coord.y
+     * @param param.name;
+     */
+    var Point = function( param ){
+        this.x = param.coord.x;
+        this.y = param.coord.y;
+        this.name = param.name;
+    };
+    /**
+     * Retourne les coordonnées du point.
+     * @return {x, y}
+     */
+    Point.prototype.getCoord = function(){
+        return {
+            x: this.x,
+            y: this.y
+        };
+    };
+    /**
+     * Définit les coordonées du point.
+     * @param coord.x
+     * @param coord.y
+     */
+    Point.prototype.setCoord = function( coord ){
+        this.x = coord.x;
+        this.y = coord.y;
+        $( this ).trigger( 'change' );
+    };
+
+    Point.prototype.setName = function( name ){
+        this.name = name;
+        $( this ).trigger( 'change' );
+    };
+    
+    /**
+     * Dessine le point dans le context2D.
+     * @param context:CanvasRenderingContext2D
+     *  Si context n'est pas pas définit, le context par défaut est chargé.
+     */
+    Point.prototype.draw = function( context ){
+        if ( typeof context === "undefined" ){
+            context = window.stateAutomaton.graphic.defaultContext;
+        }
+        context.beginPath();
+        context.moveTo( this.x - 5, this.y );
+        context.lineTo( this.x + 5, this.y );
+        context.moveTo( this.x, this.y - 5 );
+        context.lineTo( this.x, this.y + 5 );
+        context.lineWidth = 1;
+        context.stroke();
+    };
+    /**
+     * Retourne la distance avec le point passé en argument.
+     * @param point
+     */
+    Point.prototype.distance = function( point ){
+        return Math.sqrt( 
+            ( this.x - point.getCoord().x ) * ( this.x - point.getCoord().x ) +
+            ( this.y - point.getCoord().y ) * ( this.y - point.getCoord().y )
+        );
+    };
+    window.stateAutomaton.graphic.Point = Point;
+})(window);
+/**
+ * Classe Circle
+ * @author Pierre-Luc BLOT
+ * @created 13/11/15
+ *
+ * @requires ../StateAutomaton.src.js
+ * @requires Point.src.js
+ * @requires Style.src.js
+ */
+
+ (function(window){
+	'use strict';
+
+	/**
+	 * Construit un Cercle à partir d'un Point représentant le centre du cercle et d'un rayon ou d'un Point 
+	 * par lequel il passe.
+	 *
+	 * @constructor
+	 * @param param.center:Point
+	 * @param param.radius:number || param.point:Point
+	 * @param param.style
+	 */
+	var Circle = function( param ) {
+		this.center = param.center;
+		this.pointRadius = null;
+		var radius = param.radius;
+		if ( typeof param.radius !== "number" ){
+			this.setPointRadius( param.point );
+		} else {
+			this.setRadius( param.radius );
+		}
+		this.style = param.style ? param.style : new stateAutomaton.graphic.Style();
+	};
+
+	/**
+	 * Retourne le centre du cercle.
+	 * @return Point
+	 */
+	Circle.prototype.getCenter = function() {
+		return this.center;
+	};
+
+	/**
+	 * Retourne le rayon du cercle.
+	 */
+	Circle.prototype.getRadius = function() {
+		return this.radius;
+	};
+
+	/**
+	 * Définit un nouveau centre pour le cercle.
+	 * @param center: Point
+	 *	Centre du cercle.
+	 */
+	Circle.prototype.setCenter = function( center ){
+		this.center = center;
+		$( this ).trigger( 'change' );
+	};
+
+	/**
+	 * Met à jour le centre du cercle.
+	 * @param center: Point
+	 *	Centre du cercle.
+	 */
+	Circle.prototype.updateCenter = function( center ){
+		this.center.setCoord( center.getCoord() );
+		if ( this.pointRadius !== null ){
+			this.setPointRadius( this.pointRadius );
+		}
+		$( this ).trigger( 'change' );
+	};
+
+	/**
+	 * Définit un nouveau rayon pour le cercle.
+	 * @param radius:number
+	 */
+	Circle.prototype.setRadius = function( radius ){
+		this.radius = radius;
+		$( this ).trigger( 'change' );
+	};
+
+	/**
+	 * Définit un nouveau rayon pour le cercle.
+	 * @param radius:Point
+	 */
+	Circle.prototype.setPointRadius = function( radius ){
+		this.pointRadius = radius;
+		this.radius = this.center.distance( radius );
+		$( this ).trigger( 'change' );
+	};
+
+	/**
+	 * Dessine le cercle dans le contexte2D.
+	 * @param context:CanvasRenderingContext2D
+	 *	Si context n'est pas pas définit, le context par défaut est chargé.
+	 */
+	Circle.prototype.draw = function( context ){
+		if ( typeof context === "undefined" ){
+			context = window.stateAutomaton.graphic.defaultContext;
+		}
+		context.beginPath();
+		this.style.apply( context );
+		context.arc( this.center.getCoord().x, this.center.getCoord().y, this.radius, 0, Math.PI * 2, true );
+		context.stroke();
+		this.style.restore( context );
+	};
+
+	/**
+	 * Retourne le point sur le cercle grâce à son angle.
+	 */
+	Circle.prototype.getPoint = function( angle ){
+		return new stateAutomaton.graphic.Point({
+			coord: { 
+				x: this.center.getCoord().x + this.radius * Math.cos( angle ),
+				y: this.center.getCoord().y + this.radius * Math.sin( angle )
+			}
+		});
+	};
+
+	window.stateAutomaton.graphic.Circle = Circle;
+ })(window);
+/**
+ * Classe State
+ * @author Pierre-Luc BLOT
+ * @created 18/11/15
+ *
+ * @requires ../StateAutomaton.src.js
+ * @requires ../graphic/Text.src.js
+ * @requires ../graphic/Style.src.js
+ * @requires ../graphic/Circle.src.js
+ */
+
+ (function(window){
+    'use strict';
+
+    /**
+     * Construit un état
+     * @constructor
+     * @param param.name: string
+     * @param param.position.col: number
+     * @param param.position.row: number
+     */
+    var State = function( param ) {
+        var self = this;
+
+        this.name = param.name;
+        this.position = param.position;
+        this.style = new stateAutomaton.graphic.Style({
+            color: 'black',
+            fillColor: 'black',
+            textAlign: 'center',
+            baseline: 'middle'
+        });
+
+        this.center = null;
+        this.size = null;
+        
+        $( this ).on( 'change', function(){
+            change( self );
+        });
+    };
+
+    var change = function( self ){
+        self.circle = new stateAutomaton.graphic.Circle({
+            center: self.center,
+            radius: self.size
+        });
+        self.text = new stateAutomaton.graphic.Text({
+            text: self.name,
+            point: self.center,
+            textAlign: 'center',
+            style: self.style
+        });
+    };
+
+    State.prototype.getPosition = function(){
+        return this.position;
+    };
+
+    State.prototype.getName = function(){
+        return this.name;
+    };
+
+    State.prototype.getCenter = function(){
+        return this.center;
+    };
+
+    State.prototype.getCircle = function(){
+        return this.circle;
+    };
+
+    State.prototype.getStyle = function(){
+        return this.style;
+    };
+
+    /**
+     * @param param.size: number
+     * @param param.center: Point
+     */
+    State.prototype.define = function( param ){
+        this.size = param.size;
+        this.center = param.center;
+        $( this ).trigger( 'change' );
+    };
+
+    State.prototype.draw = function( context ){
+        if ( typeof context === "undefined" ){
+            context = window.stateAutomaton.graphic.defaultContext;
+        }
+        if ( typeof this.center === null ){
+            throw "Le centre ne doit pas être null.";
+        }
+        if ( typeof this.size === null ){
+            throw "La taille ne pas être null.";
+        }
+
+        this.style.apply( context );
+        this.circle.draw( context );
+        this.text.draw( context );
+        this.style.restore( context );
+    };
+
+    window.stateAutomaton.automaton.State = State;
+ })(window);
+
+/**
+ * Classe HeadArrow
+ * @author Pierre-Luc BLOT
+ * @created 13/11/15
+ *
+ * @requires ../StateAutomaton.src.js
+ * @requires Style.src.js
+ */
+(function(window){
+    'use strict';
+
+    /**
+     * @constructor
+     * Construit la tête d'une flèche en fonction de sa longueur et sa largeur. 
+     * Du point situé à la pointe de la flèche ainsi que d'un angle d'inclinaison.
+     * @param param.origin: Point
+     *  Pointe de la flèche.
+     * @param param.height: number
+     *  Largeur de la flèche.
+     * @param param.width: number
+     *  Longueur de la flèche.
+     * @param param.angle: number
+     *  Angle d'inclinaison exprimé en radians.
+     * @param param.style: Style
+     *  Style du tracé.
+     */
+    var HeadArrow = function( param ){
+        this.origin = param.origin;
+        this.angle = param.angle;
+        this.style = param.style ? param.style : new stateAutomaton.graphic.Style();
+        this.style.setFillColor( this.style.getColor() );
+        
+        this.height = param.height + this.style.getLineWidth(); 
+        this.width = param.width + this.style.getLineWidth();
+    };
+
+    /**
+     * Retourne le style de tracé de la tête de flèche.
+     * @return Style
+     */
+    HeadArrow.prototype.getStyle = function(){
+        return this.style;
+    };
+
+    /**
+     * Retourne le point de la pointe de la tête de flèche.
+     * @return Point
+     */
+    HeadArrow.prototype.getOrigin = function(){
+        return this.origin;
+    };
+
+    /**
+     * Retourne la largeur de la tête de flèche.
+     * @return number
+     */
+    HeadArrow.prototype.getHeight = function(){
+        return this.height - this.style.getLineWidth() + 1;
+    };
+
+    /**
+     * Retourne la longueur de la tête de flèche.
+     * @return number
+     */
+    HeadArrow.prototype.getWidth = function(){
+        return this.width - this.style.getLineWidth() + 1;
+    };
+
+    /**
+     * Dessine la tête de flèche dans le context2D
+     * @param context:CanvasRenderingContext2D
+     *  Si context n'est pas pas définit, le context par défaut est chargé.
+     */  
+    HeadArrow.prototype.draw = function( context ){
+        if ( typeof context === "undefined" ){
+            context = window.stateAutomaton.graphic.defaultContext;
+        }
+
+        var A = {
+            x: this.origin.getCoord().x,
+            y: this.origin.getCoord().y
+        };
+        /*
+        context.beginPath();
+        var r = Math.sqrt( this.height * this.height / 4 + this.width * this.width );
+        var beta = Math.atan( this.height / ( 2 * this.width ) );
+
+        var B = {
+            x: this.origin.getCoord().x + r * Math.cos( this.angle - beta),
+            y: this.origin.getCoord().y + r * Math.sin( this.angle -beta )
+        };
+        var C = {
+            x: this.origin.getCoord().x + r * Math.cos( this.angle + beta ),
+            y: this.origin.getCoord().y + r * Math.sin( this.angle + beta )
+        };
+        context.moveTo( A.x, A.y );
+        context.lineTo( B.x, B.y );
+        context.lineTo( C.x, C.y );
+        context.fill();
+        context.stroke();
+        /*/
+        var size = context.lineWidth;
+        this.style.apply( context );
+        context.beginPath();
+        context.save();
+        context.translate(A.x, A.y);
+        context.rotate(this.angle);
+        
+        context.moveTo(-this.width , 0);
+        context.lineTo(-this.width , -this.height );
+        context.lineTo(0, 0);
+        context.lineTo(-this.width , this.height );
+        context.lineTo(-this.width ,0);
+        context.closePath();
+        context.fill();
+        context.restore();
+        this.style.restore( context );
+        //*/
+    };
+    window.stateAutomaton.graphic.HeadArrow = HeadArrow;
+})(window);
+
+
+/**
  * Classe Line
  * @author Pierre-Luc BLOT
  * @created 13/11/15
@@ -470,6 +913,316 @@
 
     window.stateAutomaton.graphic.Line = Line;
  })(window);
+/**
+ * Classe ArcArrow
+ * @author Pierre-Luc BLOT
+ * @created 13/11/15
+ *
+ * @requires ../StateAutomaton.src.js
+ * @requires HeadArrow.src.js
+ * @requires Line.src.js
+ * @requires Style.src.js
+ */
+
+ (function(window){
+    'use strict';
+
+    /**
+     * Construit un ArcArrow en utilisant une courbe de bezier avec deux points de contrôle.
+     
+     * @constructor
+     * @param param.start: Point
+     *  Point de départ de l'arcArrow
+     * @param param.end:Point
+     *  Point d'arrive de l'arcArrow
+     * @param param.height:number
+     *  Hauteur de l'arcArrow.
+     * @param param.direction: string
+     *  'both' : bidirectionnelle
+     *  'left' : tête de flèche sur le point de départ
+     *  'right' : tête de flèche sur le point d'arrivé
+     *  'right' par défaut.
+     * @param param.style: Style
+     *  Style de l'arc.
+     */
+    var ArcArrow = function( param ) {
+        this.style = param.style ? param.style : new stateAutomaton.graphic.Style();
+        param.style = this.style;
+        this.arc = new stateAutomaton.graphic.Arc( param );
+
+        var self = this;
+        $( this.arc ).on( 'change', function(){
+            makeArrows( self );
+            $( self ).trigger( 'change' );
+        });
+            
+        makeArrows( this );
+
+        this.direction = 'right';
+        if ( typeof param.direction == "string" ){
+            this.direction = param.direction;
+        }
+    };
+    // cubic helper formula at T distance
+    var cubicN = function(T, a, b, c, d) {
+        var t2 = T * T;
+        var t3 = t2 * T;
+        return a + (-a * 3 + T * (3 * a - a * T)) * T + (3 * b + T * (-6 * b + b * 3 * T)) * T + (c * 3 - c * 3 * T) * t2 + d * t3;
+    };
+
+    var getCubicBezierXYatT = function(startPt, controlPt1, controlPt2, endPt, T) {
+        var x = cubicN(T, startPt.x, controlPt1.x, controlPt2.x, endPt.x);
+        var y = cubicN(T, startPt.y, controlPt1.y, controlPt2.y, endPt.y);
+        return ({
+            x: x,
+            y: y
+        });
+    };
+
+    var computeAngleBezierStartOrEnd = function(bez, dir) {
+        var w = 0.1;
+        var pointNearEnd, S, E, D, T;
+        if ( dir == "end" ){
+            S = {x: bez.sx, y: bez.sy};
+            E = {x: bez.ex,y: bez.ey};
+            D = E;
+            T = 0.99 - w;
+        } else {
+            S = {x: bez.sx,y: bez.sy};
+            E = {x: bez.ex,y: bez.ey};
+            D = S;
+            T = 0.01 + w;
+        }            
+        pointNearEnd = getCubicBezierXYatT(
+            S, {x: bez.cx1, y: bez.cy1}, {x: bez.cx2, y: bez.cy2},
+            E, T
+        );
+        var dx = D.x - pointNearEnd.x;
+        var dy = D.y - pointNearEnd.y;
+        return Math.atan2(dy, dx);
+    };
+
+    var makeArrows = function( self ){
+        var bez1 = {
+            sx: self.arc.getStartPoint().getCoord().x,
+            sy: self.arc.getStartPoint().getCoord().y,
+            cx1: self.arc.getStartControlPoint().getCoord().x,
+            cy1: self.arc.getStartControlPoint().getCoord().y,
+            cx2: self.arc.getEndControlPoint().getCoord().x,
+            cy2: self.arc.getEndControlPoint().getCoord().y,
+            ex: self.arc.getEndPoint().getCoord().x,
+            ey: self.arc.getEndPoint().getCoord().y
+        };
+
+        self.arrowRight = new stateAutomaton.graphic.HeadArrow({
+            origin: self.arc.getEndPoint(),
+            height: 5,
+            width: 5,
+            angle: computeAngleBezierStartOrEnd(bez1, 'end'),
+            style: self.style
+        });
+
+        self.arrowLeft = new stateAutomaton.graphic.HeadArrow({
+            origin: self.arc.getStartPoint(),
+            height: 5,
+            width: 5,
+            angle: computeAngleBezierStartOrEnd(bez1, 'start'),
+            style: self.style
+        });
+    };
+
+    /**
+     * Retourne la direction des flèches.
+     */
+    ArcArrow.prototype.getDirection = function(){
+        return this.direction;
+    };
+
+    /**
+     * Retourne le point de départ de l'arcArrow.
+     * @return Point
+     */
+    ArcArrow.prototype.getArc = function(){
+        return this.arc;
+    };
+
+    /**
+     * Dessine le cercle dans le contexte2D.
+     * @param context:CanvasRenderingContext2D
+     *  Si context n'est pas pas définit, le context par défaut est chargé.
+     */
+    ArcArrow.prototype.draw = function( context ){
+        if ( typeof context === "undefined" ){
+            context = window.stateAutomaton.graphic.defaultContext;
+        }
+        this.arc.draw( context );
+
+        if ( this.direction == 'left' || this.direction == 'both' ){
+            this.arrowLeft.draw( context );
+        }
+        if ( this.direction == 'right' || this.direction == 'both' ){
+            this.arrowRight.draw( context );
+        }
+    };
+
+    window.stateAutomaton.graphic.ArcArrow = ArcArrow;
+ })(window);
+/**
+ * Classe TransitionCurve
+ * @author Pierre-Luc BLOT
+ * @created 18/11/15
+ *
+ * @requires ../StateAutomaton.src.js
+ * @requires ../graphic/Text.src.js
+ * @requires ../graphic/Style.src.js
+ * @requires ../graphic/ArcArrow.src.js
+ */
+
+ (function(window){
+    'use strict';
+
+    /**
+     * Construit une transition
+     * @constructor
+     * @param param.name: string
+     * @param param.start: State
+     * @param param.end: State
+     */
+    var TransitionCurve = function( param ) {
+        var self = this;
+
+        this.name = param.name;
+        this.start = param.start;
+        this.end = param.end;
+        this.position = param.position ? param.position : 'top';
+        
+        this.style = new stateAutomaton.graphic.Style({
+            color: 'black',
+            fillColor: 'black',
+            textAlign: 'center',
+            baseline: 'middle'
+        });        
+        
+        $( this ).on( 'change', function(){
+            change( self );
+        });
+
+        $( this.start ).on( 'change', function(){
+            change( self );
+        });
+
+        $( this.end ).on( 'change', function(){
+            change( self );
+        });
+
+        change( self );
+    };
+
+    var change = function( self ){
+        if ( self.start.getCenter() !== null && self.end.getCenter() !== null ){
+            var s = self.start,
+                e = self.end;
+
+            var u = {
+                x: e.getCenter().getCoord().x - s.getCenter().getCoord().x,
+                y: e.getCenter().getCoord().y - s.getCenter().getCoord().y
+            };
+            
+            var sp, ep, dir = self.position == 'top' ? 1 : -1;
+            if ( u.x < 0 && u.y < 0 ){
+                if ( dir == 1 ){
+                    sp = s.getCircle().getPoint( -Math.PI / 4 );
+                    ep = e.getCircle().getPoint( -Math.PI / 4 );
+                } else {
+                    sp = s.getCircle().getPoint( Math.PI );
+                    ep = e.getCircle().getPoint( -3 * Math.PI / 2 );
+                }
+            } else if ( u.x > 0 && u.y < 0 ){
+                sp = s.getCircle().getPoint( -Math.PI / 2 );
+                ep = e.getCircle().getPoint( Math.PI );
+            } else if ( u.x > 0 && u.y > 0 ){
+                sp = s.getCircle().getPoint( 0 );
+                ep = e.getCircle().getPoint( -Math.PI / 2 );
+            } else if ( u.x < 0 && u.y > 0 ){
+                if ( dir == 1 ){
+                    sp = s.getCircle().getPoint( -3 * Math.PI / 4 );
+                    ep = e.getCircle().getPoint( -Math.PI / 2 );
+                } else {
+                    sp = s.getCircle().getPoint( -3 * Math.PI / 2 );
+                    ep = e.getCircle().getPoint( 0 );
+                }
+            } else if ( u.y === 0 ){
+                if ( u.x > 0 ){
+                    if ( dir == 1 ){
+                        sp = s.getCircle().getPoint( -Math.PI / 2 );
+                        ep = e.getCircle().getPoint( -Math.PI / 2 );
+                        dir *= -1;
+                    } else {
+                        dir = -1;
+                        sp = s.getCircle().getPoint( -3 * Math.PI / 2 );
+                        ep = e.getCircle().getPoint( -3 * Math.PI / 2 );
+                    }
+                } else {
+                    if ( dir == 1 ){
+                        sp = s.getCircle().getPoint( -Math.PI / 2 );
+                        ep = e.getCircle().getPoint( -Math.PI / 2 );
+                    } else {
+                        dir = -1;
+                        sp = s.getCircle().getPoint( -3 * Math.PI / 2 );
+                        ep = e.getCircle().getPoint( -3 * Math.PI / 2 );
+                    }
+                }
+            } else if ( u.x === 0 ){
+                if ( dir == 1 ){
+                    sp = s.getCircle().getPoint( Math.PI );
+                    ep = e.getCircle().getPoint( Math.PI );
+                } else {
+                    sp = s.getCircle().getPoint( 0 );
+                    ep = e.getCircle().getPoint( 0 );
+                }
+            }
+            self.arc = new stateAutomaton.graphic.ArcArrow({
+                start: sp,
+                end: ep,
+                height: dir * sp.distance( ep ) / 4,
+                style: self.style
+            });
+        }
+    };
+
+    TransitionCurve.prototype.getPosition = function(){
+        return this.position;
+    };
+
+    TransitionCurve.prototype.getName = function(){
+        return this.name;
+    };
+
+    TransitionCurve.prototype.getStart = function(){
+        return this.start;
+    };
+
+    TransitionCurve.prototype.getEnd = function(){
+        return this.end;
+    };
+
+    TransitionCurve.prototype.getStyle = function(){
+        return this.style;
+    };
+
+
+    TransitionCurve.prototype.draw = function( context ){
+        if ( typeof context === "undefined" ){
+            context = window.stateAutomaton.graphic.defaultContext;
+        }
+        this.style.apply( context );
+        this.arc.draw( context );
+        this.style.restore( context );
+    };
+
+    window.stateAutomaton.automaton.TransitionCurve = TransitionCurve;
+ })(window);
+
 /**
  * Classe Arc
  * @author Pierre-Luc BLOT
@@ -630,283 +1383,6 @@
     };
 
     window.stateAutomaton.graphic.Arc = Arc;
- })(window);
-/**
- * Classe HeadArrow
- * @author Pierre-Luc BLOT
- * @created 13/11/15
- *
- * @requires ../StateAutomaton.src.js
- * @requires Style.src.js
- */
-(function(window){
-    'use strict';
-
-    /**
-     * @constructor
-     * Construit la tête d'une flèche en fonction de sa longueur et sa largeur. 
-     * Du point situé à la pointe de la flèche ainsi que d'un angle d'inclinaison.
-     * @param param.origin: Point
-     *  Pointe de la flèche.
-     * @param param.height: number
-     *  Largeur de la flèche.
-     * @param param.width: number
-     *  Longueur de la flèche.
-     * @param param.angle: number
-     *  Angle d'inclinaison exprimé en radians.
-     * @param param.style: Style
-     *  Style du tracé.
-     */
-    var HeadArrow = function( param ){
-        this.origin = param.origin;
-        this.angle = param.angle;
-        this.style = param.style ? param.style : new stateAutomaton.graphic.Style();
-        this.style.setFillColor( this.style.getColor() );
-        
-        this.height = param.height + this.style.getLineWidth(); 
-        this.width = param.width + this.style.getLineWidth();
-    };
-
-    /**
-     * Retourne le style de tracé de la tête de flèche.
-     * @return Style
-     */
-    HeadArrow.prototype.getStyle = function(){
-        return this.style;
-    };
-
-    /**
-     * Retourne le point de la pointe de la tête de flèche.
-     * @return Point
-     */
-    HeadArrow.prototype.getOrigin = function(){
-        return this.origin;
-    };
-
-    /**
-     * Retourne la largeur de la tête de flèche.
-     * @return number
-     */
-    HeadArrow.prototype.getHeight = function(){
-        return this.height - this.style.getLineWidth() + 1;
-    };
-
-    /**
-     * Retourne la longueur de la tête de flèche.
-     * @return number
-     */
-    HeadArrow.prototype.getWidth = function(){
-        return this.width - this.style.getLineWidth() + 1;
-    };
-
-    /**
-     * Dessine la tête de flèche dans le context2D
-     * @param context:CanvasRenderingContext2D
-     *  Si context n'est pas pas définit, le context par défaut est chargé.
-     */  
-    HeadArrow.prototype.draw = function( context ){
-        if ( typeof context === "undefined" ){
-            context = window.stateAutomaton.graphic.defaultContext;
-        }
-
-        var A = {
-            x: this.origin.getCoord().x,
-            y: this.origin.getCoord().y
-        };
-        /*
-        context.beginPath();
-        var r = Math.sqrt( this.height * this.height / 4 + this.width * this.width );
-        var beta = Math.atan( this.height / ( 2 * this.width ) );
-
-        var B = {
-            x: this.origin.getCoord().x + r * Math.cos( this.angle - beta),
-            y: this.origin.getCoord().y + r * Math.sin( this.angle -beta )
-        };
-        var C = {
-            x: this.origin.getCoord().x + r * Math.cos( this.angle + beta ),
-            y: this.origin.getCoord().y + r * Math.sin( this.angle + beta )
-        };
-        context.moveTo( A.x, A.y );
-        context.lineTo( B.x, B.y );
-        context.lineTo( C.x, C.y );
-        context.fill();
-        context.stroke();
-        /*/
-        var size = context.lineWidth;
-        this.style.apply( context );
-        context.beginPath();
-        context.save();
-        context.translate(A.x, A.y);
-        context.rotate(this.angle);
-        
-        context.moveTo(-this.width , 0);
-        context.lineTo(-this.width , -this.height );
-        context.lineTo(0, 0);
-        context.lineTo(-this.width , this.height );
-        context.lineTo(-this.width ,0);
-        context.closePath();
-        context.fill();
-        context.restore();
-        this.style.restore( context );
-        //*/
-    };
-    window.stateAutomaton.graphic.HeadArrow = HeadArrow;
-})(window);
-
-
-/**
- * Classe ArcArrow
- * @author Pierre-Luc BLOT
- * @created 13/11/15
- *
- * @requires ../StateAutomaton.src.js
- * @requires HeadArrow.src.js
- * @requires Line.src.js
- * @requires Style.src.js
- */
-
- (function(window){
-    'use strict';
-
-    /**
-     * Construit un ArcArrow en utilisant une courbe de bezier avec deux points de contrôle.
-     
-     * @constructor
-     * @param param.start: Point
-     *  Point de départ de l'arcArrow
-     * @param param.end:Point
-     *  Point d'arrive de l'arcArrow
-     * @param param.height:number
-     *  Hauteur de l'arcArrow.
-     * @param param.direction: string
-     *  'both' : bidirectionnelle
-     *  'left' : tête de flèche sur le point de départ
-     *  'right' : tête de flèche sur le point d'arrivé
-     *  'right' par défaut.
-     * @param param.style: Style
-     *  Style de l'arc.
-     */
-    var ArcArrow = function( param ) {
-        this.style = param.style ? param.style : new stateAutomaton.graphic.Style();
-        param.style = this.style;
-        this.arc = new stateAutomaton.graphic.Arc( param );
-
-        var self = this;
-        $( this.arc ).on( 'change', function(){
-            makeArrows( self );
-            $( self ).trigger( 'change' );
-        });
-            
-        makeArrows( this );
-
-        this.direction = 'right';
-        if ( typeof param.direction == "string" ){
-            this.direction = param.direction;
-        }
-    };
-    // cubic helper formula at T distance
-    var cubicN = function(T, a, b, c, d) {
-        var t2 = T * T;
-        var t3 = t2 * T;
-        return a + (-a * 3 + T * (3 * a - a * T)) * T + (3 * b + T * (-6 * b + b * 3 * T)) * T + (c * 3 - c * 3 * T) * t2 + d * t3;
-    };
-
-    var getCubicBezierXYatT = function(startPt, controlPt1, controlPt2, endPt, T) {
-        var x = cubicN(T, startPt.x, controlPt1.x, controlPt2.x, endPt.x);
-        var y = cubicN(T, startPt.y, controlPt1.y, controlPt2.y, endPt.y);
-        return ({
-            x: x,
-            y: y
-        });
-    };
-
-    var computeAngleBezierStartOrEnd = function(bez, dir) {
-        var w = 0.1;
-        var pointNearEnd, S, E, D, T;
-        if ( dir == "end" ){
-            S = {x: bez.sx, y: bez.sy};
-            E = {x: bez.ex,y: bez.ey};
-            D = E;
-            T = 0.99 - w;
-        } else {
-            S = {x: bez.sx,y: bez.sy};
-            E = {x: bez.ex,y: bez.ey};
-            D = S;
-            T = 0.01 + w;
-        }            
-        pointNearEnd = getCubicBezierXYatT(
-            S, {x: bez.cx1, y: bez.cy1}, {x: bez.cx2, y: bez.cy2},
-            E, T
-        );
-        var dx = D.x - pointNearEnd.x;
-        var dy = D.y - pointNearEnd.y;
-        return Math.atan2(dy, dx);
-    };
-
-    var makeArrows = function( self ){
-        var bez1 = {
-            sx: self.arc.getStartPoint().getCoord().x,
-            sy: self.arc.getStartPoint().getCoord().y,
-            cx1: self.arc.getStartControlPoint().getCoord().x,
-            cy1: self.arc.getStartControlPoint().getCoord().y,
-            cx2: self.arc.getEndControlPoint().getCoord().x,
-            cy2: self.arc.getEndControlPoint().getCoord().y,
-            ex: self.arc.getEndPoint().getCoord().x,
-            ey: self.arc.getEndPoint().getCoord().y
-        };
-
-        self.arrowRight = new stateAutomaton.graphic.HeadArrow({
-            origin: self.arc.getEndPoint(),
-            height: 5,
-            width: 5,
-            angle: computeAngleBezierStartOrEnd(bez1, 'end'),
-            style: self.style
-        });
-
-        self.arrowLeft = new stateAutomaton.graphic.HeadArrow({
-            origin: self.arc.getStartPoint(),
-            height: 5,
-            width: 5,
-            angle: computeAngleBezierStartOrEnd(bez1, 'start'),
-            style: self.style
-        });
-    };
-
-    /**
-     * Retourne la direction des flèches.
-     */
-    ArcArrow.prototype.getDirection = function(){
-        return this.direction;
-    };
-
-    /**
-     * Retourne le point de départ de l'arcArrow.
-     * @return Point
-     */
-    ArcArrow.prototype.getArc = function(){
-        return this.arc;
-    };
-
-    /**
-     * Dessine le cercle dans le contexte2D.
-     * @param context:CanvasRenderingContext2D
-     *  Si context n'est pas pas définit, le context par défaut est chargé.
-     */
-    ArcArrow.prototype.draw = function( context ){
-        if ( typeof context === "undefined" ){
-            context = window.stateAutomaton.graphic.defaultContext;
-        }
-        this.arc.draw( context );
-
-        if ( this.direction == 'left' || this.direction == 'both' ){
-            this.arrowLeft.draw( context );
-        }
-        if ( this.direction == 'right' || this.direction == 'both' ){
-            this.arrowRight.draw( context );
-        }
-    };
-
-    window.stateAutomaton.graphic.ArcArrow = ArcArrow;
  })(window);
 /**
  * Classe Arrow
@@ -1085,320 +1561,6 @@
 })(window);
 
 /**
- * Classe Circle
- * @author Pierre-Luc BLOT
- * @created 13/11/15
- *
- * @requires ../StateAutomaton.src.js
- * @requires Point.src.js
- * @requires Style.src.js
- */
-
- (function(window){
-	'use strict';
-
-	/**
-	 * Construit un Cercle à partir d'un Point représentant le centre du cercle et d'un rayon ou d'un Point 
-	 * par lequel il passe.
-	 *
-	 * @constructor
-	 * @param param.center:Point
-	 * @param param.radius:number || param.point:Point
-	 * @param param.style
-	 */
-	var Circle = function( param ) {
-		this.center = param.center;
-		this.pointRadius = null;
-		var radius = param.radius;
-		if ( typeof param.radius !== "number" ){
-			this.setPointRadius( param.point );
-		} else {
-			this.setRadius( param.radius );
-		}
-		this.style = param.style ? param.style : new stateAutomaton.graphic.Style();
-	};
-
-	/**
-	 * Retourne le centre du cercle.
-	 * @return Point
-	 */
-	Circle.prototype.getCenter = function() {
-		return this.center;
-	};
-
-	/**
-	 * Retourne le rayon du cercle.
-	 */
-	Circle.prototype.getRadius = function() {
-		return this.radius;
-	};
-
-	/**
-	 * Définit un nouveau centre pour le cercle.
-	 * @param center: Point
-	 *	Centre du cercle.
-	 */
-	Circle.prototype.setCenter = function( center ){
-		this.center = center;
-		$( this ).trigger( 'change' );
-	};
-
-	/**
-	 * Met à jour le centre du cercle.
-	 * @param center: Point
-	 *	Centre du cercle.
-	 */
-	Circle.prototype.updateCenter = function( center ){
-		this.center.setCoord( center.getCoord() );
-		if ( this.pointRadius !== null ){
-			this.setPointRadius( this.pointRadius );
-		}
-		$( this ).trigger( 'change' );
-	};
-
-	/**
-	 * Définit un nouveau rayon pour le cercle.
-	 * @param radius:number
-	 */
-	Circle.prototype.setRadius = function( radius ){
-		this.radius = radius;
-		$( this ).trigger( 'change' );
-	};
-
-	/**
-	 * Définit un nouveau rayon pour le cercle.
-	 * @param radius:Point
-	 */
-	Circle.prototype.setPointRadius = function( radius ){
-		this.pointRadius = radius;
-		this.radius = this.center.distance( radius );
-		$( this ).trigger( 'change' );
-	};
-
-	/**
-	 * Dessine le cercle dans le contexte2D.
-	 * @param context:CanvasRenderingContext2D
-	 *	Si context n'est pas pas définit, le context par défaut est chargé.
-	 */
-	Circle.prototype.draw = function( context ){
-		if ( typeof context === "undefined" ){
-			context = window.stateAutomaton.graphic.defaultContext;
-		}
-		context.beginPath();
-		this.style.apply( context );
-		context.arc( this.center.getCoord().x, this.center.getCoord().y, this.radius, 0, Math.PI * 2, true );
-		context.stroke();
-		this.style.restore( context );
-	};
-
-	/**
-	 * Retourne le point sur le cercle grâce à son angle.
-	 */
-	Circle.prototype.getPoint = function( angle ){
-		return new stateAutomaton.graphic.Point({
-			coord: { 
-				x: this.center.getCoord().x + this.radius * Math.cos( angle ),
-				y: this.center.getCoord().y + this.radius * Math.sin( angle )
-			}
-		});
-	};
-
-	window.stateAutomaton.graphic.Circle = Circle;
- })(window);
-/**
- * Classe Environment
- * @author Pierre-Luc BLOT
- * @created 17/11/15
- *
- * @requires ../StateAutomaton.src.js
- */
-
- (function(window){
-    'use strict';
-
-    /**
-     * Construit un environnement graphic associé à un canvas.
-     * @constructor
-     * @param canvas
-     * @param antialiasing
-     */
-    var Environment = function( canvas, antialiasing ) {
-        if ( typeof canvas === "undefined" ){
-            throw "Un canvas est nécessaire pour construire un environnement graphique.";
-        }
-        if ( typeof antialiasing === "undefined" ){
-            antialiasing = true;
-        }
-        this.antialiasing = antialiasing;
-        this.canvas = canvas;
-        this.context = stateAutomaton.graphic.getContext( canvas, antialiasing );
-        this.elements = [];
-    };
-
-    Environment.prototype.getWidth = function(){
-        return this.canvas.width;
-    };
-
-    Environment.prototype.getHeight = function(){
-        return this.canvas.width;
-    };
-
-    Environment.prototype.addElement = function( element ){
-        if ( typeof element === "undefined" ){
-            throw "Impossible d'ajouter undefined";
-        }
-        this.elements.push( element );
-    };
-
-    Environment.prototype.addElements = function( elements ){
-        if ( typeof elements === "undefined" ){
-            throw "Impossible d'ajouter undefined";
-        }
-        for ( var i in elements ){
-            this.addElement( elements[ i ] );
-        }
-    };
-
-
-    Environment.prototype.getContext = function(){
-        return this.context;
-    };
-
-    var clear = function( self ){
-        if ( !self.antialiasing ){
-            self.context.translate( -0.5, -0.5 );
-        }
-        self.context.clearRect( 0, 0, self.canvas.width, self.canvas.height );
-        if ( !self.antialiasing ){
-            self.context.translate( 0.5, 0.5 );
-        }
-    };
-
-    Environment.prototype.clear = function(){
-        this.elements = [];
-        clear( this );
-    };
-
-    Environment.prototype.redraw = function(){
-        this.context.save();
-        clear( this );
-
-        this.draw();
-        this.context.restore();
-    };
-
-    Environment.prototype.draw = function(){
-        for ( var i in this.elements ){
-            this.elements[ i ].draw( this.context );
-        }
-    };
-
-    Environment.prototype.getImage = function(){
-        var image = new Image();
-        image.src = this.canvas.toDataUrl();
-        return image;
-    };
-
-    window.stateAutomaton.graphic.createEnvironment = function( canvas, antialiasing ){
-        return new stateAutomaton.graphic.Environment( canvas, antialiasing );
-    };
-    window.stateAutomaton.graphic.Environment = Environment;
- })(window);
-/**
- * Classe Text
- * @author Pierre-Luc BLOT
- * @created 16/11/15
- *
- * @requires ../StateAutomaton.src.js
- * @requires Style.src.js
- */
-
- (function(window){
-    'use strict';
-
-    /**
-     * Construit un Texte à partir d'un point de départ.
-     * @constructor
-     * @param param.start: Point
-     *  Point de départ du texte
-     * @param param.text: string
-     *  Texte à afficher
-     * @param param.style: Style
-     *  Style du tracé.
-     */
-    var Text = function( param ) {
-        this.text = param.text;
-        this.point = param.point;
-        var self = this;
-        $( this.point ).on( 'change', function(){
-            $( self ).trigger( 'change' );
-        });
-
-        this.style = param.style ? param.style : new stateAutomaton.graphic.Style();
-         // todo:  les param non explicit seront implémentés ultérieurement
-        this.font = this.style.getFont();
-        this.textAlign = this.style.getTextAlign();
-        this.textBaseline = this.style.getBaseline();
-        this.fillColor = this.style.getFillColor();
-    };
-
-    /** 
-     * Retourne le style de la ligne.
-     * @return Style
-     */
-    Text.prototype.getStyle = function(){
-        return this.style;
-    };
-
-    /**
-     * Retourne le texte à afficher.
-     * @return string
-     */
-    Text.prototype.getText = function(){
-        return this.text;
-    };
-
-    /**
-     * Retourne le point où le texte sera affiché.
-     */
-    Text.prototype.getPoint = function(){
-        return this.point;
-    };
-
-    Text.prototype.setPoint = function( point ){
-        this.point = point;
-        $( this ).trigger( 'change' );
-    };
-
-    /**
-     * @return textPxLength: longueur du texte dessiné en pixel.
-     */
-    Text.prototype.getTextPxLength = function( context ){
-        if ( typeof context == "undefined" ){
-            throw "Le context du canvas doit être définit.";
-        }
-        return context.measureText( this.text );
-    };
-
-    /**
-     * Dessine le cercle dans le contexte2D.
-     * @param context:CanvasRenderingContext2D
-     *  Si context n'est pas pas définit, le context par défaut est chargé.
-     */
-    Text.prototype.draw = function( context ){
-        if ( typeof context === "undefined" ){
-            context = window.stateAutomaton.graphic.defaultContext;
-        }
-        context.beginPath();        
-        this.style.apply( context );
-        context.fillText( this.text, this.point.getCoord().x, this.point.getCoord().y );
-        context.stroke();
-        this.style.restore( context );
-    };
-
-    window.stateAutomaton.graphic.Text = Text;
- })(window);
-/**
  * Classe Grid
  * @author Pierre-Luc BLOT
  * @created 16/11/15
@@ -1508,7 +1670,8 @@
                 (col * this.cell.width + (col + 1) * this.cell.width) / 2,
                 (row * this.cell.height + (row + 1) * this.cell.height) / 2,
                 "(" + col + ", " + row + ")"
-            )
+            ),
+            size: this.cell
         };
         return cell;
     };
@@ -1538,4 +1701,139 @@
     };
 
     window.stateAutomaton.pattern.Grid = Grid;
+ })(window);
+/**
+ * Classe Environment
+ * @author Pierre-Luc BLOT
+ * @created 17/11/15
+ *
+ * @requires ../StateAutomaton.src.js
+ * @requires ../pattern/Grid.src.js
+ */
+
+ (function(window){
+    'use strict';
+
+    /**
+     * Construit un environnement graphic associé à un canvas.
+     * @constructor
+     * @param canvas
+     * @param antialiasing
+     */
+    var Environment = function( canvas, antialiasing ) {
+        if ( typeof canvas === "undefined" ){
+            throw "Un canvas est nécessaire pour construire un environnement graphique.";
+        }
+        if ( typeof antialiasing === "undefined" ){
+            antialiasing = true;
+        }
+        this.grid = null;
+        this.antialiasing = antialiasing;
+        this.canvas = canvas;
+        this.context = stateAutomaton.graphic.getContext( canvas, antialiasing );
+        this.elements = [];
+    };
+
+    Environment.prototype.getWidth = function(){
+        return this.canvas.width;
+    };
+
+    Environment.prototype.getHeight = function(){
+        return this.canvas.width;
+    };
+
+    Environment.prototype.addElement = function( element ){
+        if ( typeof element === "undefined" ){
+            throw "Impossible d'ajouter undefined";
+        }
+        this.elements.push( element );
+    };
+
+    Environment.prototype.addElements = function( elements ){
+        if ( typeof elements === "undefined" ){
+            throw "Impossible d'ajouter undefined";
+        }
+        for ( var i in elements ){
+            this.addElement( elements[ i ] );
+        }
+    };
+
+
+    Environment.prototype.getContext = function(){
+        return this.context;
+    };
+
+    var clear = function( self ){
+        if ( !self.antialiasing ){
+            self.context.translate( -0.5, -0.5 );
+        }
+        self.context.clearRect( 0, 0, self.canvas.width, self.canvas.height );
+        if ( !self.antialiasing ){
+            self.context.translate( 0.5, 0.5 );
+        }
+    };
+
+    Environment.prototype.makeGrid = function( param ){
+        this.grid = new stateAutomaton.pattern.Grid({
+            col: param.col,
+            row: param.row,
+            height: this.canvas.height,
+            width: this.canvas.width
+        });
+    };
+
+    Environment.prototype.getGrid = function(){
+        return this.grid;
+    };
+
+    Environment.prototype.addState = function( state ){
+        if ( typeof this.grid === null ){
+            throw "L'environnement ne possède aucune grille.";
+        }
+        var pos = state.getPosition();
+        var matrix = this.grid.getMatrix();
+        var cell = matrix[ pos.col ][ pos.row ];
+        var center = cell.middle;
+        state.define({
+            center: center,
+            size: Math.min( cell.size.width / 4, cell.size.height / 4 )
+        });
+        this.addElement( state );
+    };
+
+    Environment.prototype.addStates = function( states ){
+        for ( var i = 0; i < states.length; ++i ){
+            this.addState( states[ i ] );
+        }
+    };
+
+    Environment.prototype.clear = function(){
+        this.elements = [];
+        clear( this );
+    };
+
+    Environment.prototype.redraw = function(){
+        this.context.save();
+        clear( this );
+
+        this.draw();
+        this.context.restore();
+    };
+
+    Environment.prototype.draw = function(){
+        for ( var i in this.elements ){
+            this.elements[ i ].draw( this.context );
+        }
+    };
+
+    Environment.prototype.getImage = function(){
+        var image = new Image();
+        image.src = this.canvas.toDataUrl();
+        return image;
+    };
+
+    window.stateAutomaton.graphic.createEnvironment = function( canvas, antialiasing ){
+        return new stateAutomaton.graphic.Environment( canvas, antialiasing );
+    };
+    window.stateAutomaton.graphic.Environment = Environment;
  })(window);
